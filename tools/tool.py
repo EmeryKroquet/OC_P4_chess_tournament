@@ -53,13 +53,13 @@ def go_back_to_menu(current_view: str):
 def tournaments_all_lists():
     """Listes de tous les tournois existants."""
     if MainController().util.if_tournament_db_empty():
-        typer.secho("Aucun tournoi créé.", fg=typer.colors.RED)
+        typer.secho("Aucun tournoi créé.")
         return
     print_info("liste des tournois existants:")
     all_tournaments = MainController().util.get_tournaments_by_id()
     for tournament in all_tournaments:
         if tournament.round_ended:
-            round_ended = typer.style(" -> Terminé", fg=typer.colors.YELLOW)
+            round_ended = typer.style(" -> Terminé")
         else:
             round_ended = ""
         typer.echo(f"{tournament.id_number}. {tournament.name} - {tournament.date}" + round_ended)
@@ -86,7 +86,7 @@ def list_of_all_players():
     for player in all_players:
         if player.delete_player:
             continue
-        player_id = typer.style(str(player.id_number), bold=True)
+        player_id = typer.style(str(player.id_number))
         typer.echo(f"{player_id}. {player.first_name} {player.last_name}")
 
 
@@ -97,7 +97,7 @@ def player_exists(choose_id: str, players_ids=list):
     if not choose_id.isnumeric():
         error_message("entrez le numéro du joueur apparaissant devant son nom")
         return False
-    if int(choose_id) in players_ids:
+    if choose_id in players_ids:
         error_message(f"le joueur numéro {choose_id} a déjà été ajouté")
         return False
     if MainController().util.if_player_id_in_database(player_id=int(choose_id)):

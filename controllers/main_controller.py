@@ -8,21 +8,6 @@ from models.round import Round
 from models.tournament import Tournament
 
 
-# class SingletonMeta(type):
-#     """Meta for singleton application. As DataHandler will be used by different modules there is
-#     no need to load the database multiple time.
-#     Singleton was kept simple and is currently not thread safe.
-#     """
-#
-#     _instances = {}
-#
-#     def __call__(cls, *args, **kwargs):
-#         if cls not in cls._instances:
-#             instance = super().__call__(*args, **kwargs)
-#             cls._instances[cls] = instance
-#         return cls._instances[cls]
-#
-
 class MainController:
 
     def __init__(self):
@@ -134,7 +119,7 @@ class MainController:
             id_number: int = 0,
             round_ended: bool = False,
             save_db: bool = False
-            ):
+    ):
 
         if id_number == 0:
             id_number = self.found_next_id(self.tournaments_table)
@@ -243,7 +228,7 @@ class MainController:
 
     def load_matches(self, tournament_id: int):
         for match in self.matches_table:
-            if match["Tournament id"] != tournament_id:
+            if match["Tournament ID"] != tournament_id:
                 continue
             player_1 = self.database.players[match["Player 1"]]
             player_2 = self.database.players[match["Player 2"]]
@@ -251,8 +236,8 @@ class MainController:
 
             self.create_match(
                 players=players,
-                tournament_id=match["Tournament id"],
-                round_id=match["Round id"],
+                tournament_id=match["Tournament ID"],
+                round_id=match["Round ID"],
                 winner=match["Winner"],
                 id_number=match["id"],
                 save_db=True
@@ -286,8 +271,8 @@ class MainController:
                 "Player 1": match.player_1.id_number,
                 "Player 2": match.player_2.id_number,
                 "Winner": match.player_winner,
-                "Tournament id": int(match.tournament_id),
-                "Round id": int(match.round_id),
+                "Tournament ID": int(match.tournament_id),
+                "Round ID": int(match.round_id),
                 "id": int(match.id_number),
             },
             query.id == int(match.id_number)

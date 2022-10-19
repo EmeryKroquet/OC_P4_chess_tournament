@@ -5,6 +5,7 @@ import typer
 from controllers.main_controller import MainController
 import tools.tool as _TOOLS
 import views.menu_play as _MENU_PLAY
+from views.menu_play import PlayMenu
 
 
 class TournamentMenu:
@@ -57,7 +58,7 @@ class TournamentMenu:
             DeleteTournamentMenu()
         elif user_choice == "5":
             typer.echo("\n\n")
-            _TOOLS.tournaments_all_lists()
+            _TOOLS.tournaments_all_list()
             typer.echo("\n")
             cls.tournament_user_choice()
         else:
@@ -206,8 +207,8 @@ class NewTournamentMenu:
             return False
 
     def add_players(self):
-        typer.secho("\n Veillez entrer le numéro d'un joueur à ajouter\n", fg=typer.colors.BLUE)
-        _TOOLS.list_of_all_players()
+        typer.secho("\n Veillez entrer le numéro d'un joueur à ajouter\n",)
+        _TOOLS.players_all_list()
         while len(self.players) < 8:
             choice = typer.prompt(f"Joueur ({str(len(self.players))}/8)")
             if _TOOLS.player_exists(choose_id=choice, players_ids=self.players):
@@ -225,17 +226,17 @@ class NewTournamentMenu:
     def list_of_parameters_of_tournament(self):
         _TOOLS.print_info("paramètres du tournoi:")
 
-        parameter = typer.style("Nom: ", bold=True)
+        parameter = typer.style("Nom: ")
         typer.echo(parameter + self.tournament_name)
-        parameter = typer.style("Lieu: ", bold=True)
+        parameter = typer.style("Lieu: ")
         typer.echo(parameter + self.place)
-        parameter = typer.style("Date: ", bold=True)
+        parameter = typer.style("Date: ")
         typer.echo(parameter + self.date)
-        parameter = typer.style("Number of tours: ", bold=True)
+        parameter = typer.style("Number of tours: ")
         typer.echo(parameter + self.numbers_of_tours)
-        parameter = typer.style("Contrôle du temps: ", bold=True)
+        parameter = typer.style("Contrôle du temps: ")
         typer.echo(parameter + self.time_control)
-        parameter = typer.style("Description: ", bold=True)
+        parameter = typer.style("Description: ")
         typer.echo(parameter + self.description)
 
     def list_of_selection_players_by_name(self):
@@ -265,7 +266,7 @@ class NewTournamentMenu:
         confirm = typer.confirm("\nSouhaitez-vous commencer le tournoi ?")
 
         if confirm:
-            _MENU_PLAY.PlayMenu(tournament_id=self.create_tournament_id)
+            PlayMenu(tournament_id=self.create_tournament_id)
         else:
             _TOOLS.go_back_to_menu(current_view=self.__class__.__name__)
 
@@ -350,13 +351,13 @@ class EditTournamentMenu:
 
     def list_of_parameters_of_tournament(self):
         _TOOLS.print_info("nouvelle information du tournoi")
-        parameter = typer.style("Nom: ", bold=True)
+        parameter = typer.style("Nom: ")
         typer.echo(parameter + self.tournament_choice.name)
-        parameter = typer.style("Lieu: ", bold=True)
+        parameter = typer.style("Lieu: ")
         typer.echo(parameter + self.tournament_choice.place)
-        parameter = typer.style("Date: ", bold=True)
+        parameter = typer.style("Date: ")
         typer.echo(parameter + self.tournament_choice.date)
-        parameter = typer.style("Description: ", bold=True)
+        parameter = typer.style("Description: ")
         typer.echo(parameter + self.tournament_choice.description)
 
     def save_tournament(self):
@@ -372,7 +373,7 @@ class EditTournamentMenu:
             description=self.tournament_choice.description,
             players=self.tournament_choice.players,
             rating_table=self.tournament_choice.rating_table,
-            round_ended=self.tournament_choice.round_ended,
+            is_round_ended=self.tournament_choice.is_round_ended,
             id_number=self.tournament_choice.id_number
         )
 

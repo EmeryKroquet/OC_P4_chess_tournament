@@ -11,16 +11,14 @@ class Database:
         self.load_database()
 
     def create_empty_database(self):
-        """Creates an empty database JSON file if needed."""
-
+        """Crée un fichier JSON de base de données vide si nécessaire."""
         with open(self.place, "w+") as f:
             f.write("{}")
 
     def load_database(self):
-        """ Charger un objet dans un fichier JSON """
-
+        """ Charger un objet dans un fichier """
         try:
-            self.db = TinyDB(f"{self.place}.json")
+            self.db = TinyDB(self.place)
         except FileNotFoundError:
             self.create_empty_database()
             self.load_database()

@@ -1,7 +1,6 @@
 class Round:
 
     def __init__(self, round_number: int, tournament_id: int, id_number: int):
-
         self.round_number = round_number
         self.tournament_id = tournament_id
         self.id_number = id_number
@@ -9,11 +8,11 @@ class Round:
         self.matches = {}
 
     def __str__(self):
-        stdout_content = "   - Round Number: {num}\n".format(num=self.round_number)
+        show_info = (f"   - Round Number: {self.round_number}\n"
 
-        stdout_content += "   - Matches -\n"
+                     f"   - Matches -\n")
 
         for started_match in self.matches:
-            stdout_content += started_match.__str__()
+            show_info += started_match.__str__()
 
-        return stdout_content
+        return show_info

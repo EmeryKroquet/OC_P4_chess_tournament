@@ -8,7 +8,17 @@ from models.round import Round
 from models.tournament import Tournament
 
 
-class MainController:
+class SingletonMeta(type):
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            instance = super().__call__(*args, **kwargs)
+            cls._instances[cls] = instance
+        return cls._instances[cls]
+
+
+class MainController(metaclass=SingletonMeta):
 
     def __init__(self):
         self.database = Database("db")
@@ -24,10 +34,10 @@ class MainController:
         """Instancie les différentes tables dans les attributs et charge leur contenu
             en créant les objets correspondants.
             """
-        self.players_table = self.database.db.table("players")
-        self.tournaments_table = self.database.db.table("tournaments")
-        self.rounds_table = self.database.db.table("rounds")
-        self.matches_table = self.database.db.table("matches")
+        self.players_table = self.database.db.table("Players")
+        self.tournaments_table = self.database.db.table("Tournaments")
+        self.rounds_table = self.database.db.table("Rounds")
+        self.matches_table = self.database.db.table("Matches")
 
         self.load_players()
         self.load_tournaments()
@@ -60,8 +70,7 @@ class MainController:
         if id_number == 0:
             id_number = self.found_next_id(self.players_table)
         player = Player(gender.upper(), first_name.capitalize(), last_name.capitalize(), rating,
-                        date_of_birth, id_number, delete_player,
-                        )
+                        date_of_birth, id_number, delete_player,)
         self.save_player(player=player, save_db=save_db)
         return id_number
 
@@ -100,7 +109,7 @@ class MainController:
                 time_control=tournament["Time Control"],
                 description=tournament["Description"],
                 id_number=tournament["id"],
-                round_ended=tournament["Round ended"],
+                is_round_ended=tournament["Round ended"],
                 players=tournament["Players"],
                 rating_table=tournament["Rating table"],
                 save_db=True
@@ -117,7 +126,7 @@ class MainController:
             players: list[int],
             rating_table: dict,
             id_number: int = 0,
-            round_ended: bool = False,
+            is_round_ended: bool = False,
             save_db: bool = False
     ):
 
@@ -141,7 +150,7 @@ class MainController:
             time_control=time_control,
             description=description,
             id_number=id_number,
-            round_ended=round_ended,
+            is_round_ended=is_round_ended,
             players=player_list,
             rating_table=rating_table
         )
@@ -168,7 +177,7 @@ class MainController:
                 "Description": tournament.description,
                 "Players": players_id,
                 "Rating table": tournament.rating_table,
-                "Round ended": tournament.round_ended,
+                "Round ended": tournament.is_round_ended,
                 "id": int(tournament.id_number),
             },
             query.id == int(tournament.id_number)
@@ -292,9 +301,9 @@ class MainController:
             next_ += 1
         return next_
 
-    def update_rating(self, tournament_id: int, player_id: int, points_earned: float):
+    def update_rating(self, tournament_id: int, player_id: int, winner_point: float):
         tournament = self.database.tournaments[tournament_id]
-        tournament.rating_table[str(player_id)] += points_earned
+        tournament.rating_table[str(player_id)] += winner_point
         self.save_tournament(tournament=tournament)
 
     def found_tournament_in_progress(self):

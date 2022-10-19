@@ -12,17 +12,15 @@ class Match:
         self.player_2 = players[1]
 
     def __str__(self):
-        stdout_content = "    - {first_name_1} {last_name_1} ({rating_1}) vs " \
-                         "{first_name_2} {last_name_2} ({rating_2})\n". \
-            format(
-                first_name_1=self.player_1.first_name,
-                last_name_1=self.player_1.last_name,
-                rating_1=self.player_1.elo,
-                first_name_2=self.player_2.first_name,
-                last_name_2=self.player_2.last_name,
-                rating_2=self.player_2.elo,
-            )
-        stdout_content += "    Winner : {winner}\n".format(winner=self.player_winner)
-        stdout_content += "    id : {id}\n".format(id=self.id_number)
+        show_info = "    - {first_name_1} {last_name_1} ({rating_1}) vs " \
+                    "{first_name_2} {last_name_2} ({rating_2})\n".format(first_name_1=self.player_1.first_name,
+                                                                         last_name_1=self.player_1.last_name,
+                                                                         rating_1=self.player_1.rating_1,
+                                                                         first_name_2=self.player_2.first_name,
+                                                                         last_name_2=self.player_2.last_name,
+                                                                         rating_2=self.player_2.rating_2,
+                                                                         )
+        show_info += f"    Winner : {self.player_winner}\n"
+        show_info += f"    id : {self.id_number}\n"
 
-        return stdout_content
+        return show_info

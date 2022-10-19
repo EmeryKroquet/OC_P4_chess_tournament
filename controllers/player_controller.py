@@ -20,34 +20,22 @@ class PlayerController:
                 Retourne :
                     liste[Joueur] : Liste des joueurs classés par leur classement (croissant).
                 """
-        return sorted(self.players, key=lambda x: x.rating)
+        return sorted(self.players, key=lambda item: item.rating)
 
-    @staticmethod
-    def sort_by_points(rating_table: dict):
+    @classmethod
+    def sort_by_points(cls, rating_table: dict):
         """Trier les joueurs d'une table d'évaluation par points."""
         return sorted(rating_table, key=rating_table.get, reverse=True)
 
     def show_player_from_id(self, player_id: str):
-        """Recherche parmi les joueurs participants pour un identifiant unique donné.
-                Arguments :
-                    player_id (str) : L'identifiant unique du joueur à rechercher.
-                Retourne :
-                    Joueur : Objet joueur correspondant.
-                """
+        """Recherche parmi les joueurs participants pour un identifiant unique donné."""
         for player in self.players:
             if player.id_number == int(player_id):
                 return player
 
-    @staticmethod
-    def players_already_play(matches: list[tuple[Player]], id_player1: str, id_player2: str):
-        """Recherche dans une liste de matchs un match déjà existant entre les deux joueurs donnés.
-        Arguments :
-            matches (liste [tuple [Player]]) : Liste d'appariements de joueurs, correspondant à des matchs passés.
-            Id_joueur1 (str) : Identifiant unique du premier joueur.
-            Id_player2 (str) : L'identifiant unique du deuxième joueur.
-        Retourne :
-            bool : Les joueurs se sont déjà rencontrés.
-        """
+    @classmethod
+    def players_already_play(cls, matches: list[tuple[Player]], id_player1: str, id_player2: str):
+        """Recherche dans une liste de matchs un match déjà existant entre les deux joueurs donnés."""
         player_1_vs_player_2 = (int(id_player1), int(id_player2))
         player_2_vs_player_1 = (int(id_player2), int(id_player1))
 
@@ -60,8 +48,7 @@ class PlayerController:
 
     def generate_first_round(self):
         """Génère le premier tour selon le système suisse.
-            Retourne :
-            liste[Match] : Liste des correspondances générées
+            Retourne la liste[Match] : Liste des correspondances générées
         """
         matches = []
         sorted_players = self.sort_by_rating()
@@ -71,14 +58,14 @@ class PlayerController:
         return matches
 
     @classmethod
-    def generate_next_round(cls, matches: list[Match], rating_table: dict):
+    def generate_next_round(cls, rating_table: dict):
         """Génère un tour, autre que le premier, selon le système suisse.
                 Args :
                     matches (liste [Match]) : Liste des matchs passés.
                     Rating_table (dict) : Tableau des leaders actuel.
                 Retourne :
                     list[Match] : Liste des matchs générés.
-                """
+        """
         matches = []
         sorted_players = cls.sort_by_points(rating_table=rating_table)
         while len(sorted_players) != 0:

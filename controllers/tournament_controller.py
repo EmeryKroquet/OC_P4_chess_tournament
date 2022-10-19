@@ -20,6 +20,7 @@ class TournamentController:
         """Constructeur pour PlayerController.
             Tournament_id (int) : Id unique du tournoi à reprendre.
         """
+        # breakpoint()
         self.tournament = MainController().database.tournaments[tournament_id]
         self.generator = PlayerController(players=self.tournament.players)
 
@@ -51,7 +52,7 @@ class TournamentController:
         """
         self.update_tournament_in_progression()
         current_tour = self.tournament.tours[self.current_round_id]
-        if self.round_ended(tour=current_tour):
+        if self.is_round_ended(tour=current_tour):
             if self.tournament_ended():
                 return None
             self.create_round()
@@ -85,7 +86,7 @@ class TournamentController:
         """
         for round_id in self.tournament.tours:
             round_obj = self.tournament.tours[round_id]
-            if not self.round_ended(tour=round_obj):
+            if not self.is_round_ended(tour=round_obj):
                 self.current_round_id = round_obj.id_number
                 self.current_round_number = round_obj.round_number
             else:
@@ -110,59 +111,53 @@ class TournamentController:
             first_match_id = list(current_tour.matches.keys())[0]
             self.current_match_id = first_match_id
 
-    def round_ended(self, tour: Round):
+    def is_round_ended(self, tour: Round):
         """Vérifie si un tour est terminé en parcourant les gagnants de ses matchs.
-        Arguments :
-            tour (Round) : Objet de ronde à vérifier.
-        Retourne :
-            bool : Le match est terminé.
+            Retourne bool : Le match est terminé.
         """
         matches = tour.matches
 
         for match_id in matches:
-            match_obj = self.tournament.tours[tour.id_number].matches[match_id]
-            if match_obj.winner is None:
+            match = self.tournament.tours[tour.id_number].matches[match_id]
+            if match.winner is None:
                 return False
 
         return True
 
     def tournament_ended(self):
         """Vérifie si un tournoi est terminé en itérant à travers ses tours.
-        Retourne :
-            bool : Le tournoi est terminé.
+            Retourne bool : Le tournoi est terminé.
         """
         if len(self.tournament.tours) < self.tournament.numbers_of_tours:
             return False
 
         for round_id in self.tournament.tours:
-            round_obj = self.tournament.tours[round_id]
-            if not self.round_ended(tour=round_obj):
+            round_ = self.tournament.tours[round_id]
+            if not self.is_round_ended(tour=round_):
                 return False
 
-        MainController().database.tournaments[self.tournament.id_number].round_ended = True
+        MainController().database.tournaments[self.tournament.id_number].is_round_ended = True
         MainController().save_tournament(tournament=MainController().database.tournaments[self.tournament.id_number])
         return True
 
     def save_player_winner(self, match: Match, winner: str):
         """Prend le gagnant saisi par l'utilisateur et le sauvegarde dans la base de données.
-               Arguments :
-                   match (Match) : Match à prendre en compte.
-                   Gagnant (str) : Entrée de l'utilisateur.
-               """
+              Gagnant (str) : Entrée de l'utilisateur.
+        """
         if winner == "1":
             winner = 1
             MainController().update_rating(
-                tournament_id=match.tournament_id, player_id=match.player_1.id_number, points_earned=1)
+                tournament_id=match.tournament_id, player_id=match.player_1.id_number, winner_point=1)
         elif winner == "2":
             winner = 2
             MainController().update_rating(
-                tournament_id=match.tournament_id, player_id=match.player_2.id_number, points_earned=1)
+                tournament_id=match.tournament_id, player_id=match.player_2.id_number, winner_point=1)
         elif winner == "nul":
             winner = 0
             MainController().update_rating(
-                tournament_id=match.tournament_id, player_id=match.player_1.id_number, points_earned=0.5)
+                tournament_id=match.tournament_id, player_id=match.player_1.id_number, winner_point=0.5)
             MainController().update_rating(
-                tournament_id=match.tournament_id, player_id=match.player_2.id_number, points_earned=0.5)
+                tournament_id=match.tournament_id, player_id=match.player_2.id_number, winner_point=0.5)
         self.tournament.tours[self.current_round_id].matches[match.id_number].winner = winner
         MainController().save_match(self.tournament.tours[self.current_round_id].matches[match.id_number])
 

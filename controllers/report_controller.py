@@ -47,7 +47,7 @@ class ReportController:
         for player in tournament.players:
             players_dict[player.id_number] = player
 
-        players_list = MainController().util.get_players_by_name(players_sample=players_dict)
+        players_list = MainController().util.get_players_by_name(players_name=players_dict)
 
         for player in players_list:
             self.data.append(
@@ -91,24 +91,24 @@ class ReportController:
             players_ids = [x.id_number for x in tournament.players]
             list_of_players_name = MainController().util.get_players_names(players_names=players_ids)
 
-            if tournament.is_finished:
-                is_finished = "Terminé"
+            if tournament.is_round_ended:
+                is_round_ended = "Terminé"
             else:
-                is_finished = "En cours"
+                is_round_ended = "En cours"
 
             self.data.append(
                 {
-                    "id": tournament.id_num,
+                    "id": tournament.id_number,
                     "Nom": tournament.name,
-                    "Lieu": tournament.location,
+                    "Lieu": tournament.place,
                     "Date": tournament.date,
-                    "Nombre de rounds": tournament.number_of_rounds,
+                    "Nombre de rounds": tournament.numbers_of_tours,
                     "Contrôle de temps": tournament.time_control,
                     "Description": tournament.description,
-                    "Progression": is_finished,
+                    "Progression": is_round_ended,
                     "Joueurs": list_of_players_name,
-                    "Classement": MainController().util.get_formated_leaderboard(
-                        rating=tournament.rating_table
+                    "Classement": MainController().util.get_format_rating_table(
+                        rating_table=tournament.rating_table
                     ),
                 }
             )

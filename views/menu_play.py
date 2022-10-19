@@ -1,3 +1,5 @@
+from time import sleep
+
 import typer
 
 from controllers.tournament_controller import TournamentController
@@ -40,17 +42,11 @@ class PlayMenu:
             bold=True,
         )
         tournament_number = typer.style(
-            f"Tournoi {self.tournament_controller.tournament.id_number}",
-            fg=typer.colors.BLUE,
-        )
+            f"Tournoi {self.tournament_controller.tournament.id_number}")
         round_number = typer.style(
-            f"Round {self.tournament_controller.current_round_number}",
-            fg=typer.colors.BLUE,
-        )
+            f"Round {self.tournament_controller.current_round_number}")
         match_number = typer.style(
-            f"Match {self.tournament_controller.current_match_number}",
-            fg=typer.colors.BLUE,
-        )
+            f"Match {self.tournament_controller.current_match_number}")
 
         typer.echo("\n" + decorator +
                    tournament_number +
@@ -58,8 +54,8 @@ class PlayMenu:
                    separator + match_number +
                    decorator)
 
-    @staticmethod
-    def introduce_match(match: Match):
+    @classmethod
+    def introduce_match(cls, match: Match):
         """Affiche les noms et le classement des joueurs du match en cours."""
         player_1_title = typer.style(
             "Joueur 1: ",
@@ -69,13 +65,9 @@ class PlayMenu:
             "{first_name_1} {last_name_1} ".format(
                 first_name_1=match.player_1.first_name,
                 last_name_1=match.player_1.last_name,
-            ),
-            fg=typer.colors.GREEN,
-        )
+            ))
         player_1_rating = typer.style(
-            f"({match.player_1.rating})",
-            fg=typer.colors.BLUE,
-        )
+            f"({match.player_1.rating})")
 
         player_1_presentation = player_1_title + player_1_name + player_1_rating
 
@@ -91,20 +83,16 @@ class PlayMenu:
             "{first_name_2} {last_name_2} ".format(
                 first_name_2=match.player_2.first_name,
                 last_name_2=match.player_2.last_name,
-            ),
-            fg=typer.colors.GREEN,
-        )
+            ))
         player_2_rating = typer.style(
-            f"({match.player_2.rating})",
-            fg=typer.colors.BLUE,
-        )
+            f"({match.player_2.rating})")
 
         player_2_presentation = player_2_title + player_2_name + player_2_rating
 
         typer.echo(player_1_presentation + versus + player_2_presentation)
 
-    @staticmethod
-    def ask_for_winner():
+    @classmethod
+    def ask_for_winner(cls):
         """Invite l'utilisateur à saisir un gagnant.
         Retourne :
             str : Le vainqueur du match.
@@ -131,3 +119,6 @@ class PlayMenu:
             points = str(player[1])
             typer.echo(f"{rating} {player_name} ({points} points)")
             i += 1
+
+            typer.echo("\n")
+            sleep(5)

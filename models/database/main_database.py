@@ -25,8 +25,7 @@ class MainDatabase:
 
     def if_player_id_in_database(self, player_id: int):
         """Vérifie si un identifiant de joueur donné existe dans la base de données.
-        Retourne :
-            bool : L'identifiant du joueur existe dans la base de données.
+        Retourne bool : L'identifiant du joueur existe dans la base de données.
         """
         if player_id in self.database.players:
             if self.database.players[player_id].delete_player:
@@ -38,8 +37,7 @@ class MainDatabase:
 
     def if_tournament_db_empty(self):
         """Vérifie s'il n'y a pas de tournoi dans la base de données.
-        Retourne :
-            bool : Aucun tournoi dans la base de données.
+        Retourne bool : Aucun tournoi dans la base de données.
         """
         if len(self.database.tournaments) == 0:
             return True
@@ -48,16 +46,14 @@ class MainDatabase:
 
     def if_player_db_empty(self):
         """Vérifie s'il n'y a pas de joueur dans la base de données.
-        Retourne :
-            bool : Aucun joueur dans la base de données.
+            Retourne bool : Aucun joueur dans la base de données.
         """
         if len(self.database.players) == 0:
             return True
         else:
             return False
 
-    @staticmethod
-    def get_all_matches(tournament: Tournament):
+    def get_all_matches(self, tournament: Tournament):
         """Listes de tous les matches dans un tournoi."""
 
         match_list = []
@@ -176,7 +172,7 @@ class MainDatabase:
         tournament_list = []
 
         for tournament in self.database.tournaments:
-            if not self.database.tournaments[tournament].round_ended:
+            if not self.database.tournaments[tournament].is_round_ended:
                 tournament_list.append(self.database.tournaments[tournament])
 
         return tournament_list

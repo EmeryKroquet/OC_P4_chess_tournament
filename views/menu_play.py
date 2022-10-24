@@ -4,7 +4,7 @@ import typer
 
 from controllers.tournament_controller import TournamentController
 import tools.tool as _TOOLS
-from controllers.main_controller import MainController
+from models.database.main_database import MainController
 from models.match import Match
 
 

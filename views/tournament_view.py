@@ -2,7 +2,7 @@ from copy import deepcopy
 
 import typer
 
-from controllers.main_controller import MainController
+from models.database.main_database import MainController
 import tools.tool as _TOOLS
 import views.menu_play as _MENU_PLAY
 from views.menu_play import PlayMenu

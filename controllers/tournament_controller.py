@@ -1,5 +1,5 @@
 from controllers.player_controller import PlayerController
-from controllers.main_controller import MainController
+from models.database.main_database import MainController
 from models.match import Match
 from models.round import Round
 

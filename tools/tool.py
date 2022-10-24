@@ -2,7 +2,7 @@ from datetime import datetime
 import datetime
 import typer
 
-from controllers.main_controller import MainController
+from models.database.main_database import MainController
 import views.main_view as _MAIN_MENU
 import views.tournament_view as _TOURNAMENT_MENU
 import views.player_view as _PLAYER_MENU

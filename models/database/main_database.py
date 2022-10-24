@@ -1,197 +1,312 @@
-from models.tournament import Tournament
+from tinydb import Query, table
+
+from controllers.main_controller import MainDatabase
 from models.database.database import Database
+from models.match import Match
+from models.player import Player
+from models.round import Round
+from models.tournament import Tournament
 
 
-class MainDatabase:
-    """Helper class encapsulating methods to manipulate and transform database objects.
-    Attributes:
-        database (Database): Instance of database handler database."""
+class SingletonMeta(type):
+    _instances = {}
 
-    def __init__(self, database: Database):
-        """Constructor de Database."""
-        self.database = database
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            instance = super().__call__(*args, **kwargs)
+            cls._instances[cls] = instance
+        return cls._instances[cls]
 
-    def if_tournament_id_in_database(self, tournament_id: int):
-        """Verifies if a given tournament id exists in database.
-        Args:
-            tournament_id (int): Tournament id to verify.
-        Returns:
-            bool: Tournament id exists in database.
-        """
-        if tournament_id in self.database.tournaments:
-            return True
-        else:
-            return False
 
-    def if_player_id_in_database(self, player_id: int):
-        """Vérifie si un identifiant de joueur donné existe dans la base de données.
-        Retourne bool : L'identifiant du joueur existe dans la base de données.
-        """
-        if player_id in self.database.players:
-            if self.database.players[player_id].delete_player:
-                return False
-            else:
-                return True
-        else:
-            return False
+class MainController(metaclass=SingletonMeta):
 
-    def if_tournament_db_empty(self):
-        """Vérifie s'il n'y a pas de tournoi dans la base de données.
-        Retourne bool : Aucun tournoi dans la base de données.
-        """
-        if len(self.database.tournaments) == 0:
-            return True
-        else:
-            return False
+    def __init__(self):
+        self.database = Database("db")
+        self.util = MainDatabase(database=self.database)
 
-    def if_player_db_empty(self):
-        """Vérifie s'il n'y a pas de joueur dans la base de données.
-            Retourne bool : Aucun joueur dans la base de données.
-        """
-        if len(self.database.players) == 0:
-            return True
-        else:
-            return False
+        self.matches_table = None
+        self.rounds_table = None
+        self.players_table = None
+        self.tournaments_table = None
+        self.load_database()
 
-    def get_all_matches(self, tournament: Tournament):
-        """Listes de tous les matches dans un tournoi."""
+    def load_database(self):
+        """Instancie les différentes tables dans les attributs et charge leur contenu
+            en créant les objets correspondants.
+            """
+        self.players_table = self.database.db.table("Players")
+        self.tournaments_table = self.database.db.table("Tournaments")
+        self.rounds_table = self.database.db.table("Rounds")
+        self.matches_table = self.database.db.table("Matches")
 
-        match_list = []
+        self.load_players()
+        self.load_tournaments()
 
-        for round_id in tournament.tours:
-            for match_id in tournament.tours[round_id].matches:
-                player_1 = tournament.tours[round_id].matches[match_id].player_1
-                player_2 = tournament.tours[round_id].matches[match_id].player_2
-                match_list.append((player_1.id_number, player_2.id_number))
-        return match_list
+    def load_players(self):
+        """Utilise la table TinyDB "Players" pour créer des objets Player."""
+        for player in self.players_table:
+            self.create_player(
+                first_name=player["First Name"],
+                last_name=player["Last Name"],
+                date_of_birth=player["Date of Birth"],
+                gender=player["Gender"],
+                rating=player["Rating"],
+                id_number=player["id"],
+                delete_player=player["Deleted Player"],
+                save_db=True,
+            )
 
-    def get_players_by_name(self, players_name: dict = None):
-        """Listes de tous les joueurs par nom.
-        Retournes :
-            listes : Liste de tous les joueurs par nom de classement.
-        """
-        if players_name is None:
-            players_name = self.database.players
-        print(players_name)
-        players_ids = sorted(players_name, key=lambda x: players_name[x].last_name)
+    def create_player(
+            self,
+            first_name: str,
+            last_name: str,
+            date_of_birth: str,
+            gender: str,
+            rating: int,
+            id_number: int = 0,
+            delete_player: bool = False,
+            save_db: bool = False,
+    ):
+        if id_number == 0:
+            id_number = self.found_next_id(self.players_table)
+        player = Player(gender.upper(), first_name.capitalize(), last_name.capitalize(), rating,
+                        date_of_birth, id_number, delete_player,)
+        self.save_player(player=player, save_db=save_db)
+        return id_number
 
-        players_list = []
-        for id_number in players_ids:
-            if self.database.players[id_number].delete_player:
+    def save_player(self, player: Player, save_db: bool = False):
+        """Sauvegarder un objet Player dans TinyDB."""
+        self.database.players[player.id_number] = player
+
+        if save_db:
+            return
+        query = Query()
+        self.players_table.upsert(
+            {
+                "First Name": player.first_name,
+                "Last Name": player.last_name,
+                "Date of Birth": player.date_of_birth,
+                "Gender": player.gender,
+                "Rating": int(player.rating),
+                "id": int(player.id_number),
+                "Deleted Player": player.delete_player,
+            },
+            query.id == int(player.id_number),
+        )
+
+    def delete_player(self, player: Player):
+        player.delete_player = True
+        self.save_player(player=player)
+
+    def load_tournaments(self):
+        """Utilise la table TinyDB “Tournois" pour créer des objets Joueur."""
+        for tournament in self.tournaments_table:
+            self.create_tournament(
+                name=tournament["Name"],
+                place=tournament["Place"],
+                date=tournament["Date"],
+                numbers_of_tours=tournament["Number of Tours"],
+                time_control=tournament["Time Control"],
+                description=tournament["Description"],
+                id_number=tournament["id"],
+                is_round_ended=tournament["Round ended"],
+                players=tournament["Players"],
+                rating_table=tournament["Rating table"],
+                save_db=True
+            )
+
+    def create_tournament(
+            self,
+            name: str,
+            place: str,
+            date: str,
+            numbers_of_tours: int,
+            time_control: str,
+            description: str,
+            players: list[int],
+            rating_table: dict,
+            id_number: int = 0,
+            is_round_ended: bool = False,
+            save_db: bool = False
+    ):
+
+        if id_number == 0:
+            id_number = self.found_next_id(self.tournaments_table)
+            # Créer la liste requise d'objets Player à partir des identifiants des joueurs.
+        player_list = []
+
+        for player in players:
+            player_list.append(self.database.players[player])
+        # Créer une table de classement vide si elle n'existe pas encore.
+        if len(rating_table) == 0:
+            for player in players:
+                rating_table[str(player)] = 0
+
+        tournament = Tournament(
+            name=name,
+            place=place,
+            date=date,
+            numbers_of_tours=numbers_of_tours,
+            time_control=time_control,
+            description=description,
+            id_number=id_number,
+            is_round_ended=is_round_ended,
+            players=player_list,
+            rating_table=rating_table
+        )
+
+        self.save_tournament(tournament=tournament, save_db=save_db)
+        return id_number
+
+    def save_tournament(self, tournament: Tournament, save_db: bool = False):
+        if save_db:
+            return
+        query = Query()
+        players_id = []
+
+        for player in tournament.players:
+            players_id.append(player.id_number)
+
+        self.tournaments_table.upsert(
+            {
+                "Name": tournament.name,
+                "Place": tournament.place,
+                "Date": tournament.date,
+                "Number of Tours": int(tournament.numbers_of_tours),
+                "Time Control": tournament.time_control,
+                "Description": tournament.description,
+                "Players": players_id,
+                "Rating table": tournament.rating_table,
+                "Round ended": tournament.is_round_ended,
+                "id": int(tournament.id_number),
+            },
+            query.id == int(tournament.id_number)
+        )
+
+    def delete_tournament(self, tournament: Tournament):
+        self.load_rounds(tournament_id=tournament.id_number)
+        self.load_matches(tournament_id=tournament.id_number)
+
+        for tour in tournament.tours:
+            self.delete_round(tour=tournament.tours[tour])
+
+        query = Query()
+        self.tournaments_table.remove(query.id == int(tournament.id_number))
+        del self.database.tournaments[int(tournament.id_number)]
+
+    def load_rounds(self, tournament_id: int = None):
+        for tour in self.rounds_table:
+            if tour["Tournament id"] != tournament_id:
                 continue
-            players_list.append(self.database.players[id_number])
-        return players_list
+            self.create_round(
+                round_number=tour["Round number"],
+                tournament_id=tour["Tournament id"],
+                id_number=tour["id"],
+                save_db=True
+            )
 
-    def get_players_by_rating(self, players_name: dict = None):
-        """Lists de tous les joueurs par ordre de classement.
-        Retournes :
-            listes : Lists de tous les joueurs par ordre de classement.
-        """
-        if players_name is None:
-            players_name = self.database.players
-        players_ids = sorted(players_name, key=lambda x: players_name[x].rating, reverse=True)
+    def create_round(self, round_number: int, tournament_id: int,
+                     id_number: int = 0,
+                     save_db: bool = False):
 
-        players_list = []
-        for id_number in players_ids:
-            if self.database.players[id_number].delete_player:
+        if id_number == 0:
+            id_number = self.found_next_id(self.rounds_table)
+            created_round = Round(round_number=round_number, tournament_id=tournament_id, id_number=id_number)
+            self.save_round(tour=created_round, save_db=save_db)
+            return id_number
+
+    def save_round(self, tour: Round, save_db: bool = False):
+        self.database.tournaments[tour.tournament_id].tours[tour.id_number] = tour
+        if save_db:
+            return
+        query = Query()
+        self.rounds_table.upsert(
+            {
+                "Round number": tour.round_number,
+                "Tournament id": int(tour.tournament_id),
+                "id": int(tour.id_number),
+            },
+            query.id == int(tour.id_number)
+        )
+
+    def delete_round(self, tour: Round):
+        for match in tour.matches:
+            self.delete_match(match=tour.matches[match])
+            query = Query()
+            self.rounds_table.remove(query.id == int(tour.id_number))
+
+    def load_matches(self, tournament_id: int):
+        for match in self.matches_table:
+            if match["Tournament ID"] != tournament_id:
                 continue
-            players_list.append(self.database.players[id_number])
+            player_1 = self.database.players[match["Player 1"]]
+            player_2 = self.database.players[match["Player 2"]]
+            players = (player_1, player_2)
 
-        return players_list
+            self.create_match(
+                players=players,
+                tournament_id=match["Tournament ID"],
+                round_id=match["Round ID"],
+                winner=match["Winner"],
+                id_number=match["id"],
+                save_db=True
+            )
 
-    def get_players_by_id(self):
-        """Listes de tous les ID joueurs dans la base.
-        Retournes :
-            Listes : Liste de tous les joueurs par ordre d'ID.
-        """
-        players_ids = sorted(self.database.players, key=lambda x: x)
+    def create_match(
+            self, players: tuple, tournament_id: int,
+            round_id: int, winner: int, id_number: int = 0,
+            save_db: bool = False
+    ):
+        if id_number == 0:
+            id_number = self.found_next_id(self.matches_table)
 
-        players_list = []
-        for id_number in players_ids:
-            if self.database.players[id_number].delete_player:
-                continue
-            players_list.append(self.database.players[id_number])
+            match = Match(
+                players=players,
+                tournament_id=tournament_id,
+                round_id=round_id,
+                player_winner=winner,
+                id_number=id_number
+            )
 
-        return players_list
+            self.save_match(match=match, save_db=save_db)
 
-    def get_tournaments_by_id(self):
-        """Listes de tous les tournois par ordre ID dans la base.
-        Retournes :
-            Listes : Listes de tous les tournois par ordre de ID dans la base.
-        """
-        players_ids = sorted(self.database.tournaments, key=lambda x: x)
+    def save_match(self, match: Match, save_db: bool = False):
+        self.database.tournaments[match.tournament_id].tours[match.round_id].matches[match.id_number] = match
+        if save_db:
+            return
+        query = Query()
+        self.matches_table.upsert(
+            {
+                "Player 1": match.player_1.id_number,
+                "Player 2": match.player_2.id_number,
+                "Winner": match.player_winner,
+                "Tournament ID": int(match.tournament_id),
+                "Round ID": int(match.round_id),
+                "id": int(match.id_number),
+            },
+            query.id == int(match.id_number)
+        )
 
-        tournament_list = []
-        for id_number in players_ids:
-            tournament_list.append(self.database.tournaments[id_number])
+    def delete_match(self, match: Match):
+        query = Query()
+        self.matches_table.remove(query.id == int(match.id_number))
 
-        return tournament_list
+    @staticmethod
+    def found_next_id(table_: table.Table):
+        if len(table_) == 0:
+            return 1
+        query = Query()
+        next_ = 1
+        while len(table_.search(query.id >= next_)) > 0:
+            next_ += 1
+        return next_
 
-    def get_tournament_from_id_str(self, tournament_id: str):
-        """Recherche dans tous les tournois pour trouver le tournoi demandé.
-        Retournes :
-            Tournament : Reponse objet du Tournoi.
-        """
-        for tournament in self.database.tournaments:
-            if str(tournament) == tournament_id:
-                return self.database.tournaments[tournament]
+    def update_rating(self, tournament_id: int, player_id: int, winner_point: float):
+        tournament = self.database.tournaments[tournament_id]
+        tournament.rating_table[str(player_id)] += winner_point
+        self.save_tournament(tournament=tournament)
 
-    def get_player_from_id_str(self, player_id: str):
-        """Cherche parmi tous les joueurs pour trouver le joueur demandé."""
-        for player in self.database.players:
-            if str(player) == player_id:
-                return self.database.players[player]
-
-    def get_player_name_from_id(self, player_id: int):
-        """Cherche parmi tous les joueurs pour trouver le nom du joueur demandé.
-        Retourne :
-            str : Le nom et le prénom du joueur.
-        """
-        for player in self.database.players:
-            if self.database.players[player].id_number == player_id:
-                name = f"{self.database.players[player].first_name} {self.database.players[player].last_name}"
-                return name
-
-    def get_all_tournaments_existing(self):
-        """Génère une liste de tous les tournois existants dans la base de données.
-        Retourne :
-            liste [Tournoi] : Tous les tournois existants dans la base de données.
-        """
-        tournament_list = []
-
-        for tournament_id in self.database.tournaments:
-            tournament_list.append(self.database.tournaments[tournament_id])
-
-        return tournament_list
-
-    def get_tournaments_in_progress(self):
-        """Recherche dans la base de données les tournois non terminés.
-        Retourne :
-            liste [Tournoi] : Les tournois non terminés.
-        """
-        tournament_list = []
-
-        for tournament in self.database.tournaments:
-            if not self.database.tournaments[tournament].is_round_ended:
-                tournament_list.append(self.database.tournaments[tournament])
-
-        return tournament_list
-
-    def get_players_names(self, players_name: list):
-
-        return [self.get_player_name_from_id(player_id=i) for i in players_name]
-
-    def get_format_rating_table(self, rating_table: dict):
-        """Formate un dict tableau de classement en une liste de noms de joueurs et de scores, triés par points.
-        Arguments :
-            RatingTable (dict) : Tableau de classement à formater.
-        Retourne :
-            liste : Liste des noms et des scores des joueurs.
-        """
-        rating_list = [(k, v) for k, v in sorted(rating_table.items(), key=lambda item: item[1], reverse=True)]
-        format_rating_table = []
-
-        for player in rating_list:
-            format_rating_table.append((self.get_player_name_from_id(player_id=int(player[0])), player[1]))
-
-        return format_rating_table
+    def found_tournament_in_progress(self):
+        query = Query()
+        result = self.tournaments_table.search(query["Est Terminé"] is False)
+        return result

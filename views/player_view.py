@@ -3,7 +3,7 @@ from copy import deepcopy
 import typer
 
 import tools.tool as _TOOLS
-from controllers.main_controller import MainController
+from models.database.main_database import MainController
 
 
 class PlayerMenu:

@@ -2,7 +2,7 @@ import typer
 
 import tools.tool as _TOOLS
 from controllers.report_controller import ReportController
-from controllers.main_controller import MainController
+from models.database.main_database import MainController
 from models.tournament import Tournament
 
 

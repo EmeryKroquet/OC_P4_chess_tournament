@@ -1,4 +1,4 @@
-from models.database.main_database import MainController
+from models.database.main_database import MainDatabase
 from models.player import Player
 
 
@@ -72,10 +72,10 @@ class PlayerController:
                 id_player1 = sorted_players[0]
                 id_player2 = sorted_players[opponent]
 
-                player_1 = MainController().util.get_player_from_id_str(player_id=id_player1)
-                player_2 = MainController().util.get_player_from_id_str(player_id=id_player2)
+                player_1 = MainDatabase().util.get_player_from_id_str(player_id=id_player1)
+                player_2 = MainDatabase().util.get_player_from_id_str(player_id=id_player2)
 
-                if not cls.players_already_play(matches=matches, id_player1=id_player1, id_player2=id_player2):
+                if not cls.players_already_play(matches=matches, id_player1=player_1, id_player2=player_2):
                     matches.append((player_1, player_2))
                     del sorted_players[0]
                     del sorted_players[opponent - 1]

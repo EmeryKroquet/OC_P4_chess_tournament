@@ -1,4 +1,4 @@
-from models.database.main_database import MainController
+from models.database.main_database import MainDatabase
 from models.tournament import Tournament
 
 
@@ -11,7 +11,7 @@ class ReportController:
 
     def show_all_players_by_name(self):
         """Extract the data of all players sorted by name."""
-        players_list = MainController().util.get_players_by_name()
+        players_list = MainDatabase().util.get_players_by_name()
 
         for player in players_list:
             self.data.append(
@@ -28,7 +28,7 @@ class ReportController:
     def show_all_players_by_rating(self):
         """Extraire les données de tous les joueurs classés par ordre clssement dans la table."""
 
-        players_list = MainController().util.get_players_by_rating()
+        players_list = MainDatabase().util.get_players_by_rating()
 
         for player in players_list:
             self.data.append(
@@ -47,7 +47,7 @@ class ReportController:
         for player in tournament.players:
             players_dict[player.id_number] = player
 
-        players_list = MainController().util.get_players_by_name(players_name=players_dict)
+        players_list = MainDatabase().util.get_players_by_name(players_name=players_dict)
 
         for player in players_list:
             self.data.append(
@@ -67,7 +67,7 @@ class ReportController:
         for player in tournament.players:
             players_dict[player.id_number] = player
 
-        players_list = MainController().util.get_players_by_rating(players_sample=players_dict)
+        players_list = MainDatabase().util.get_players_by_rating(players_sample=players_dict)
 
         for player in players_list:
             self.data.append(
@@ -84,12 +84,12 @@ class ReportController:
     def show_all_tournaments(self):
         """Extraire les données pour tous les tournois."""
 
-        tournaments_list = MainController().util.get_tournaments_by_id()
+        tournaments_list = MainDatabase().util.get_tournaments_by_id()
 
         for tournament in tournaments_list:
 
             players_ids = [x.id_number for x in tournament.players]
-            list_of_players_name = MainController().util.get_players_names(players_names=players_ids)
+            list_of_players_name = MainDatabase().util.get_players_names(players_names=players_ids)
 
             if tournament.is_round_ended:
                 is_round_ended = "Terminé"
@@ -107,7 +107,7 @@ class ReportController:
                     "Description": tournament.description,
                     "Progression": is_round_ended,
                     "Joueurs": list_of_players_name,
-                    "Classement": MainController().util.get_format_rating_table(
+                    "Classement": MainDatabase().util.get_format_rating_table(
                         rating_table=tournament.rating_table
                     ),
                 }
@@ -121,8 +121,8 @@ class ReportController:
 
             for match in tournament.tours[tour].matches:
                 match = tournament.tours[tour].matches[match]
-                player_1 = MainController().util.get_player_name_from_id(match.player_1.id_number)
-                player_2 = MainController().util.get_player_name_from_id(match.player_2.id_number)
+                player_1 = MainDatabase().util.get_player_name_from_id(match.player_1.id_number)
+                player_2 = MainDatabase().util.get_player_name_from_id(match.player_2.id_number)
                 matches.append(f"{player_1} vs {player_2}")
 
             self.data.append(
@@ -157,5 +157,5 @@ class ReportController:
 
     @staticmethod
     def load_tournament_data(tournament_id: int):
-        MainController().load_rounds(tournament_id=tournament_id)
-        MainController().load_matches(tournament_id=tournament_id)
+        MainDatabase().load_rounds(tournament_id=tournament_id)
+        MainDatabase().load_matches(tournament_id=tournament_id)

@@ -1,5 +1,5 @@
 from controllers.player_controller import PlayerController
-from models.database.main_database import MainController
+from models.database.main_database import MainDatabase
 from models.match import Match
 from models.round import Round
 
@@ -21,7 +21,7 @@ class TournamentController:
             Tournament_id (int) : Id unique du tournoi à reprendre.
         """
         # breakpoint()
-        self.tournament = MainController().database.tournaments[tournament_id]
+        self.tournament = MainDatabase().database.tournaments[tournament_id]
         self.generator = PlayerController(players=self.tournament.players)
 
         self.current_round_number = 0
@@ -35,8 +35,8 @@ class TournamentController:
         """Utilise le gestionnaire de base de données pour charger en mémoire
             les tours du tournoi et les objets de correspondance.
         """
-        MainController().load_rounds(tournament_id=self.tournament.id_number)
-        MainController().load_matches(tournament_id=self.tournament.id_number)
+        MainDatabase().load_rounds(tournament_id=self.tournament.id_number)
+        MainDatabase().load_matches(tournament_id=self.tournament.id_number)
 
     def resume_tournament(self):
         """Crée le premier tour si nécessaire et demande une mise à jour de la première progression."""
@@ -65,15 +65,15 @@ class TournamentController:
         if len(self.tournament.tours) == 0:
             matches = self.generator.generate_first_round()
         else:
-            all_matches_list = MainController().util.get_all_matches(tournament=self.tournament)
+            all_matches_list = MainDatabase().util.get_all_matches(tournament=self.tournament)
             matches = self.generator.generate_next_round(
                 matches=all_matches_list, rating_table=self.tournament.rating_table)
 
-        round_id = MainController().create_round(
+        round_id = MainDatabase().create_round(
             round_number=len(self.tournament.tours) + 1, tournament_id=self.tournament.id_number)
         self.current_round_id = round_id
         for players in matches:
-            MainController().create_match(players=players, tournament_id=self.tournament.id_number, round_id=round_id, winner=None)
+            MainDatabase().create_match(players=players, tournament_id=self.tournament.id_number, round_id=round_id, winner=None)
 
     def update_tournament_in_progression(self):
         """Demande une mise à jour de la progression des tours et des matchs du tournoi."""
@@ -136,8 +136,8 @@ class TournamentController:
             if not self.is_round_ended(tour=round_):
                 return False
 
-        MainController().database.tournaments[self.tournament.id_number].is_round_ended = True
-        MainController().save_tournament(tournament=MainController().database.tournaments[self.tournament.id_number])
+        MainDatabase().database.tournaments[self.tournament.id_number].is_round_ended = True
+        MainDatabase().save_tournament(tournament=MainDatabase().database.tournaments[self.tournament.id_number])
         return True
 
     def save_player_winner(self, match: Match, winner: str):
@@ -146,18 +146,18 @@ class TournamentController:
         """
         if winner == "1":
             winner = 1
-            MainController().update_rating(
+            MainDatabase().update_rating(
                 tournament_id=match.tournament_id, player_id=match.player_1.id_number, winner_point=1)
         elif winner == "2":
             winner = 2
-            MainController().update_rating(
+            MainDatabase().update_rating(
                 tournament_id=match.tournament_id, player_id=match.player_2.id_number, winner_point=1)
         elif winner == "nul":
             winner = 0
-            MainController().update_rating(
+            MainDatabase().update_rating(
                 tournament_id=match.tournament_id, player_id=match.player_1.id_number, winner_point=0.5)
-            MainController().update_rating(
+            MainDatabase().update_rating(
                 tournament_id=match.tournament_id, player_id=match.player_2.id_number, winner_point=0.5)
         self.tournament.tours[self.current_round_id].matches[match.id_number].winner = winner
-        MainController().save_match(self.tournament.tours[self.current_round_id].matches[match.id_number])
+        MainDatabase().save_match(self.tournament.tours[self.current_round_id].matches[match.id_number])
 

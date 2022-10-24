@@ -1,6 +1,6 @@
 from tinydb import Query, table
 
-from controllers.main_controller import MainDatabase
+from controllers.main_controller import MainController
 from models.database.database import Database
 from models.match import Match
 from models.player import Player
@@ -18,11 +18,11 @@ class SingletonMeta(type):
         return cls._instances[cls]
 
 
-class MainController(metaclass=SingletonMeta):
+class MainDatabase(metaclass=SingletonMeta):
 
     def __init__(self):
         self.database = Database("db")
-        self.util = MainDatabase(database=self.database)
+        self.util = MainController(database=self.database)
 
         self.matches_table = None
         self.rounds_table = None

@@ -4,7 +4,7 @@ import typer
 
 from controllers.tournament_controller import TournamentController
 import tools.tool as _TOOLS
-from models.database.main_database import MainController
+from models.database.main_database import MainDatabase
 from models.match import Match
 
 
@@ -110,7 +110,7 @@ class PlayMenu:
         typer.echo("\n")
         _TOOLS.message_success("TOURNOI TERMINÉ")
         _TOOLS.print_info("classement final:")
-        rating_table = MainController().util.get_format_rating_table(
+        rating_table = MainDatabase().util.get_format_rating_table(
             rating_table=self.tournament_controller.tournament.rating_table)
         i = 1
         for player in rating_table:

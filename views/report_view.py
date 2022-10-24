@@ -2,7 +2,7 @@ import typer
 
 import tools.tool as _TOOLS
 from controllers.report_controller import ReportController
-from models.database.main_database import MainController
+from models.database.main_database import MainDatabase
 from models.tournament import Tournament
 
 
@@ -51,7 +51,7 @@ class PlayerReportMenu:
     def __init__(self):
         """Constructeur pour PlayerReportMenu."""
         _TOOLS.print_title("rapport des joueurs")
-        if MainController().util.if_player_db_empty():
+        if MainDatabase().util.if_player_db_empty():
             _TOOLS.error_message("aucun joueur créé.")
             _TOOLS.go_back_to_menu(current_view=self.__class__.__name__)
             return
@@ -99,7 +99,7 @@ class TournamentReportMenu:
 
         _TOOLS.print_title("rapport des tournois")
 
-        if MainController().util.if_tournament_db_empty():
+        if MainDatabase().util.if_tournament_db_empty():
             _TOOLS.error_message("aucun joueur créé.")
             _TOOLS.go_back_to_menu(current_view=self.__class__.__name__)
             return

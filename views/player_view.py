@@ -3,7 +3,7 @@ from copy import deepcopy
 import typer
 
 import tools.tool as _TOOLS
-from models.database.main_database import MainController
+from models.database.main_database import MainDatabase
 
 
 class PlayerMenu:
@@ -147,13 +147,13 @@ class EditPlayerMenu:
 
     def player_argument_handler(self, player_id: str):
         """Gère l'éventuel identifiant du joueur passé à l'instanciation. """
-        exists_player = MainController().util.if_player_id_in_database(player_id=player_id)
+        exists_player = MainDatabase().util.if_player_id_in_database(player_id=player_id)
 
         if player_id is not None and not exists_player:
             _TOOLS.error_message(f"le joueur n°{player_id} n'est pas disponible.")
 
         if player_id is not None and exists_player:
-            self.player_choice = MainController().util.get_player_from_id_str(player_id=str(player_id))
+            self.player_choice = MainDatabase().util.get_player_from_id_str(player_id=str(player_id))
         else:
             self.player_choice = _TOOLS.player_choice()
 
@@ -214,7 +214,7 @@ class EditPlayerMenu:
 
     def save_player(self):
         """Utilise le gestionnaire de base de données pour sauvegarder le lecteur édité."""
-        MainController().create_player(
+        MainDatabase().create_player(
             first_name=self.player_choice.first_name,
             last_name=self.player_choice.last_name,
             date_of_birth=self.player_choice.date_of_birth,
@@ -244,11 +244,11 @@ class DeletePlayerMenu:
     @classmethod
     def player_argument_handler(cls, player_id: str):
         """Gère l'éventuel identifiant du joueur passé à l'instanciation."""
-        exists_players = MainController().util.if_player_id_in_database(player_id=str(player_id))
+        exists_players = MainDatabase().util.if_player_id_in_database(player_id=str(player_id))
         if player_id is not None and not exists_players:
             _TOOLS.error_message(f"le joueur n°{player_id} n'est pas disponible.")
         if player_id is not None and exists_players:
-            cls.choose_player = MainController().util.get_player_from_id_str(player_id=str(player_id))
+            cls.choose_player = MainDatabase().util.get_player_from_id_str(player_id=str(player_id))
         else:
             cls.choose_player = _TOOLS.player_choice()
 
@@ -267,4 +267,4 @@ class DeletePlayerMenu:
 
     def delete_player(self):
         """Utilise le gestionnaire de base de données pour supprimer le lecteur."""
-        MainController().delete_player(player=self.choose_player)
+        MainDatabase().delete_player(player=self.choose_player)

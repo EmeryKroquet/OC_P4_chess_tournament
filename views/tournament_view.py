@@ -2,7 +2,7 @@ from copy import deepcopy
 
 import typer
 
-from models.database.main_database import MainController
+from models.database.main_database import MainDatabase
 import tools.tool as _TOOLS
 import views.menu_play as _MENU_PLAY
 from views.menu_play import PlayMenu
@@ -69,7 +69,7 @@ class LoadTournamentMenu:
 
     def __init__(self, tournament_id: int = None):
         _TOOLS.print_title("Chargement d'un tournoi")
-        self.tournaments = MainController().util.get_tournaments_in_progress()
+        self.tournaments = MainDatabase().util.get_tournaments_in_progress()
         self.tournament_arg_handler(tournament_id=tournament_id)
         self.display_tournaments_in_progress()
 
@@ -88,7 +88,7 @@ class LoadTournamentMenu:
                     tournament_id (str) : Identifiant facultatif du tournoi à charger.
                 """
         tournament_valable = (
-                MainController().util.get_tournament_from_id_str(tournament_id=tournament_id)
+                MainDatabase().util.get_tournament_from_id_str(tournament_id=tournament_id)
                 in self.tournaments
         )
         if tournament_id is not None and not tournament_valable:
@@ -243,14 +243,14 @@ class NewTournamentMenu:
         """Liste des joueurs pour sélectionner par leurs noms"""
         _TOOLS.print_info("liste des joueurs: ")
 
-        players_name = MainController().util.get_players_names(players_name=self.players)
+        players_name = MainDatabase().util.get_players_names(players_name=self.players)
 
         for name in players_name:
             typer.echo(f" - {name}")
 
     def save_tournament(self):
         """ Utiliser le MainDatabase pour sauvegarder le create tournament"""
-        self.create_tournament_id = MainController().create_tournament(
+        self.create_tournament_id = MainDatabase().create_tournament(
             name=self.tournament_name,
             place=self.place,
             date=self.date,
@@ -299,13 +299,13 @@ class EditTournamentMenu:
                 Arguments :
                     tournament_id (str) : Identifiant facultatif du tournoi à charger.
         """
-        tournament_exists = MainController().util.if_tournament_id_in_database(tournament_id=tournament_id)
+        tournament_exists = MainDatabase().util.if_tournament_id_in_database(tournament_id=tournament_id)
 
         if tournament_id is not None and not tournament_exists:
             _TOOLS.error_message(f"le tournoi n°{tournament_id} n'est pas disponible.")
 
         if tournament_id is not None and tournament_exists:
-            cls.tournament_choice = MainController().util.get_tournament_from_id_str(
+            cls.tournament_choice = MainDatabase().util.get_tournament_from_id_str(
                 tournament_id=int(tournament_id)
             )
         else:
@@ -364,7 +364,7 @@ class EditTournamentMenu:
         """ Utiliser la classe MainDatabase pour modifier le tournoi"""
         self.tournament_choice.players = [x.id_number for x in self.tournament_choice.players]
 
-        MainController().create_tournament(
+        MainDatabase().create_tournament(
             name=self.tournament_choice.name,
             place=self.tournament_choice.place,
             date=self.tournament_choice.date,
@@ -398,13 +398,13 @@ class DeleteTournamentMenu:
 
     @classmethod
     def tournament_arg_handler(cls, tournament_id: int = None):
-        tournament_exists = MainController().util.is_tournament_id_in_database(tournament_id=tournament_id)
+        tournament_exists = MainDatabase().util.is_tournament_id_in_database(tournament_id=tournament_id)
 
         if tournament_id is not None and not tournament_exists:
             _TOOLS.error_message(f"le tournoi n°{tournament_id} n'est pas disponible.")
 
         if tournament_id is not None and tournament_exists:
-            cls.tournament_choice = MainController().util.get_tournament_from_id_str(
+            cls.tournament_choice = MainDatabase().util.get_tournament_from_id_str(
                 tournament_id=tournament_id
             )
         else:
@@ -421,4 +421,4 @@ class DeleteTournamentMenu:
             typer.secho("\n Le tournoi n'a pas été supprimé", fg=typer.colors.GREEN)
 
     def delete_tournament(self):
-        MainController().delete_tournament(tournament=self.tournament_choice)
+        MainDatabase().delete_tournament(tournament=self.tournament_choice)

@@ -2,7 +2,7 @@ from datetime import datetime
 import datetime
 import typer
 
-from models.database.main_database import MainController
+from models.database.main_database import MainDatabase
 import views.main_view as _MAIN_MENU
 import views.tournament_view as _TOURNAMENT_MENU
 import views.player_view as _PLAYER_MENU
@@ -53,7 +53,7 @@ def go_back_to_menu(current_view: str):
 def player_choice():
     """Prompts the user to select a player in database."""
 
-    if MainController().util.if_player_db_empty():
+    if MainDatabase().util.if_player_db_empty():
         return None
 
     players_all_list()
@@ -62,13 +62,13 @@ def player_choice():
     while not player_exists(choose_id=choice):
         choice = typer.prompt("Sélectionnez un joueur")
 
-    return MainController().util.get_player_from_id_str(player_id=choice)
+    return MainDatabase().util.get_player_from_id_str(player_id=choice)
 
 
 def tournament_choice():
     """Prompts the user to select a tournament in database."""
 
-    if MainController().util.if_tournament_db_empty():
+    if MainDatabase().util.if_tournament_db_empty():
         return None
 
     tournaments_all_list()
@@ -77,19 +77,19 @@ def tournament_choice():
     while not tournament_exists(choose_id=choice):
         choice = typer.prompt("Choisir un tournoi")
 
-    return MainController().util.get_tournament_from_id_str(tournament_id=choice)
+    return MainDatabase().util.get_tournament_from_id_str(tournament_id=choice)
 
 
 def tournaments_all_list():
     """Lists all existing tournaments."""
 
-    if MainController().util.if_tournament_db_empty():
+    if MainDatabase().util.if_tournament_db_empty():
         typer.secho("Aucun tournoi créé.")
         return
 
     print_info("liste des tournois existants:")
 
-    all_tournaments = MainController().util.get_tournaments_by_id()
+    all_tournaments = MainDatabase().util.get_tournaments_by_id()
 
     for tournament in all_tournaments:
         if tournament.is_round_ended:
@@ -104,7 +104,7 @@ def players_all_list():
 
     print_info("liste des joueurs existants:")
 
-    all_players = MainController().util.get_players_by_id()
+    all_players = MainDatabase().util.get_players_by_id()
 
     for player in all_players:
         if player.delete_player:
@@ -131,7 +131,7 @@ def tournament_exists(choose_id: str):
         error_message("entrez le numéro du tournoi apparaissant devant son nom")
         return False
 
-    if MainController().util.if_tournament_id_in_database(tournament_id=int(choose_id)):
+    if MainDatabase().util.if_tournament_id_in_database(tournament_id=int(choose_id)):
         return True
 
     error_message(f"pas de tournoi avec le numéro {choose_id}")
@@ -159,8 +159,8 @@ def player_exists(choose_id: str, players_ids=None):
     if int(choose_id) in players_ids:
         error_message(f"le joueur numéro {choose_id} a déjà été ajouté")
         return False
-    if MainController().util.if_player_id_in_database(player_id=int(choose_id)):
-        if MainController().util.get_player_from_id_str(player_id=choose_id).delete_player:
+    if MainDatabase().util.if_player_id_in_database(player_id=int(choose_id)):
+        if MainDatabase().util.get_player_from_id_str(player_id=choose_id).delete_player:
             return False
         return True
     error_message(f"pas de joueur avec le numéro {choose_id}")

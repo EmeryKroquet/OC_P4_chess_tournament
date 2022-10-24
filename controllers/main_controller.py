@@ -2,7 +2,7 @@ from models.tournament import Tournament
 from models.database.database import Database
 
 
-class MainDatabase:
+class MainController:
     """Helper class encapsulating methods to manipulate and transform database objects.
     Attributes:
         database (Database): Instance of database handler database."""

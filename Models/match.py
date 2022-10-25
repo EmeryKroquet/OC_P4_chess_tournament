@@ -18,8 +18,8 @@ class Match:
                      f"First Name2 : {self.player_2.first_name}",
                      f"Last Name2 : {self.player_2.last_name}",
                      f"Rating 2: {self.player_2.rating_2}",
+                     f"Winner : {self.player_winner}\n"
+                     f"id : {self.id_number}\n"
 
                      )
-        show_info += f"winner : {self.player_winner}\n"
-        show_info += f" id : {self.id_number}\n"
         return show_info

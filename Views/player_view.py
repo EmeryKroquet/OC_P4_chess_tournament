@@ -127,9 +127,9 @@ class EditPlayerMenu:
 
     def __init__(self, player_id: int = None):
         """Constructeur pour EditPlayerMenu."""
-        # self.player_choice = None
+
         _TOOLS.print_title("modification d'un joueur")
-        self.show_players_list(player_id=str(player_id))
+        self.show_players_list(player_id=player_id)
         if self.player_choice is None:
             _TOOLS.error_message("aucun joueur créé.")
             _TOOLS.go_back_to_menu(current_view=self.__class__.__name__)

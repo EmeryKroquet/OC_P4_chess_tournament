@@ -1,8 +1,5 @@
-import typer
-
 from Models.database.main_database import MainDatabase
 from Models.player import Player
-import tools.tools as _TOOLS
 
 
 class PlayerController:
@@ -70,52 +67,3 @@ class PlayerController:
                     del sort_player[opponent - 1]
                     break
         return list_of_matches
-
-    @classmethod
-    def player_choice(cls):
-        """Prompts the user to select a player in database."""
-
-        if MainDatabase().util.if_player_in_database_empty():
-            return None
-
-        cls.players_all_list()
-
-        choice = ""
-        while not cls.player_exists(choose_id=choice):
-            choice = typer.prompt("Sélectionnez un joueur")
-
-        return MainDatabase().util.get_player_by_id_string(player_id=choice)
-
-    @staticmethod
-    def players_all_list():
-        """Lists all existing players."""
-
-        _TOOLS.print_info("liste des joueurs existants:")
-
-        all_players = MainDatabase().util.get_players_by_id()
-
-        for player in all_players:
-            if player.delete_player:
-                continue
-
-            player_id = typer.style(str(player.id_number))
-            typer.echo(f"{player_id}. {player.first_name} {player.last_name}")
-
-    @staticmethod
-    def player_exists(choose_id: str, players_ids=None):
-        if players_ids is None:
-            players_ids = []
-        if len(choose_id) == 0:
-            return False
-        if not choose_id.isnumeric():
-            _TOOLS.error_message("entrez le numéro du joueur devant son nom")
-            return False
-        if int(choose_id) in players_ids:
-            _TOOLS.error_message(f"le joueur numéro {choose_id} a déjà été ajouté")
-            return False
-        if MainDatabase().util.if_player_id_in_database(player_id=int(choose_id)):
-            if MainDatabase().util.get_player_from_id_str(player_id=choose_id).delete_player:
-                return False
-            return True
-        _TOOLS.error_message(f"pas de joueur avec le numéro {choose_id}")
-        return False

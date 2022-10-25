@@ -1,4 +1,4 @@
-import typer
+from click.exceptions import Exit
 
 import tools.tools as _TOOLS
 from Views.player_view import PlayerMenu
@@ -15,25 +15,25 @@ class MainMenu:
     def main_menu(self):
         _TOOLS.print_title(" Menu principal")
 
-        user_choice = typer.style("1. ")
-        typer.echo(user_choice + "Gérer les Tournois")
+        user_choice = _TOOLS.print_message("1. ")
+        print(user_choice + "Gérer les Tournois")
 
-        user_choice = typer.style("2. ")
-        typer.echo(user_choice + "Gérer les joueurs")
+        user_choice = _TOOLS.print_message("2. ")
+        print(user_choice + "Gérer les joueurs")
 
-        user_choice = typer.style("3. ")
-        typer.echo(user_choice + "Générer des rapports")
+        user_choice = _TOOLS.print_message("3. ")
+        print(user_choice + "Générer des rapports")
 
-        user_choice = typer.style("\n0. ")
-        typer.echo(user_choice + "Quitter")
+        user_choice = _TOOLS.print_message("\n0. ")
+        print(user_choice + "Quitter")
         self.get_user_choice()
 
     def get_user_choice(self):
-        choice = typer.prompt("\nEntrez un choix ")
-        typer.echo("\n")
+        choice = input("\nEntrez un choix: ")
+        print("\n")
 
         if choice == "0":
-            typer.Exit()
+            Exit()
         elif choice == "1":
             TournamentMenu()
             TournamentMenu().main_menu()

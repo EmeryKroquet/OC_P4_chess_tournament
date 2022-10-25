@@ -1,5 +1,3 @@
-import typer
-
 import tools.tools as _TOOLS
 from Controllers.report_controller import ReportController
 from Models.database.main_database import MainDatabase
@@ -18,7 +16,8 @@ class ReportMenu:
         self.select_user_input()
         _TOOLS.go_back_to_menu(current_view=self.__class__.__name__)
 
-    def main_menu(self):
+    @staticmethod
+    def main_menu():
         """Affiche les différentes options du menu."""
         choice = _TOOLS.print_message("1. ")
         print(choice + "Joueurs")
@@ -34,7 +33,7 @@ class ReportMenu:
         user_choice = input("Entrez votre choix ")
 
         if user_choice == "0":
-            typer.echo("\n\n")
+            print("\n\n")
             _TOOLS.go_back_to_menu(current_view=self.__class__.__name__)
         elif user_choice == "1":
             PlayerReportMenu()
@@ -60,7 +59,8 @@ class PlayerReportMenu:
 
         _TOOLS.go_back_to_menu(current_view=self.__class__.__name__)
 
-    def main_menu(self):
+    @staticmethod
+    def main_menu():
         """Affiche les différentes options du menu."""
         choice = _TOOLS.print_message("1. ")
         print(choice + "Par Nom")
@@ -175,17 +175,16 @@ class TournamentReportMenu:
     def tournament_players_sub_menu_choice(self, tournament_choice: Tournament):
         """Demande de l'utilisateur pour le sous-menu de rapport des joueurs du tournoi. """
 
-        user_choice = typer.prompt("Entrez votre sélection ")
+        user_choice = input("Entrez votre sélection ")
 
         if user_choice == "0":
-            typer.echo("\n\n")
+            print("\n\n")
             _TOOLS.go_back_to_menu(current_view=self.__class__.__name__)
         elif user_choice == "1":
-            typer.echo("\n\n")
+            print("\n\n")
             self.report_controller.show_tournament_players_by_name(tournament=tournament_choice)
         elif user_choice == "2":
             self.report_controller.show_tournament_players_by_rating(tournament=tournament_choice)
         else:
             self.select_user_input()
             return
-

@@ -1,9 +1,8 @@
 from copy import deepcopy
 
-import typer
+from click.exceptions import Exit
 
 import tools.tools as _TOOLS
-from Controllers.player_controller import PlayerController
 from Models.database.main_database import MainDatabase
 
 
@@ -53,7 +52,7 @@ class PlayerMenu:
             DeletePlayerMenu()
         elif choice == "4":
             print("\n\n")
-            PlayerController.players_all_list()
+            EditPlayerMenu().players_all_list()
             print("\n")
             self.player_user_choice()
         else:
@@ -96,21 +95,21 @@ class NewPlayerMenu:
         confirm = _TOOLS.print_message("\nSouhaitez vous confirmer la création de ce joueur ?")
         if not confirm:
             _TOOLS.error_message("annulation. Le joueur n'a pas été créé.")
-            raise typer.Exit
+            raise Exit
 
     def show_player(self):
         _TOOLS.print_info("Informations du joueur:")
 
         parameter = _TOOLS.print_message("Prénom: ")
-        typer.echo(parameter + self.first_name)
+        print(parameter + self.first_name)
         parameter = _TOOLS.print_message("Nom de famille: ")
-        typer.echo(parameter + self.last_name)
+        print(parameter + self.last_name)
         parameter = _TOOLS.print_message("Date de naissance: ")
-        typer.echo(parameter + self.date_of_birth)
+        print(parameter + self.date_of_birth)
         parameter = _TOOLS.print_message("Genre: ")
-        typer.echo(parameter + self.gender)
+        print(parameter + self.gender)
         parameter = _TOOLS.print_message("Rating: ")
-        typer.echo(parameter + str(self.rating))
+        print(parameter + str(self.rating))
 
     def save_player(self):
         """Utilise le gestionnaire de données pour sauvegarder le joueur créé."""
@@ -156,7 +155,7 @@ class EditPlayerMenu:
         if player_id is not None and exists_player:
             cls.player_choice = MainDatabase().util.get_player_by_id_string(player_id=str(player_id))
         else:
-            cls.player_choice = PlayerController.player_choice()
+            cls.player_choice = DeletePlayerMenu().player_choice()
 
     def select_player_to_edite(self):
         """Enumèrer tous les paramètres du joueur et demande de les modifier."""
@@ -193,10 +192,10 @@ class EditPlayerMenu:
     def confirm_player_creation(self):
         """Invite l'utilisateur à confirmer les paramètres précédemment saisis. """
         self.show_player()
-        confirm = typer.confirm("\nSouhaitez vous confirmer la modification de ce joueur ?")
+        confirm = _TOOLS.print_message("\nSouhaitez vous confirmer la modification de ce joueur ?")
         if not confirm:
             _TOOLS.error_message("annulation. Le joueur n'a pas été modifié.")
-            raise typer.Exit
+            raise Exit
 
     def show_player(self):
         """Affiche tous les paramètres du lecteur précédemment saisis."""
@@ -225,6 +224,41 @@ class EditPlayerMenu:
         )
         _TOOLS.message_success(f"le joueur n°{str(self.player_choice.id_number)} a été modifié.")
 
+    @classmethod
+    def players_all_list(cls):
+        """Lists all existing players."""
+
+        _TOOLS.print_info("liste des joueurs existants:")
+
+        all_players = MainDatabase().util.get_players_by_id()
+
+        for player in all_players:
+            if player.delete_player:
+                continue
+
+            player_id = _TOOLS.print_message(str(player.id_number))
+            print(f"{player_id}. {player.first_name} {player.last_name}")
+
+    @classmethod
+    def player_exists(cls, choose_id: str, players_ids=None):
+
+        if players_ids is None:
+            players_ids = []
+        if len(choose_id) == 0:
+            return False
+        if not choose_id.isnumeric():
+            _TOOLS.error_message("entrez le numéro du joueur devant son nom")
+            return False
+        if int(choose_id) in players_ids:
+            _TOOLS.error_message(f"le joueur numéro {choose_id} a déjà été ajouté")
+            return False
+        if MainDatabase().util.if_player_id_in_database(player_id=int(choose_id)):
+            if MainDatabase().util.get_player_by_id_string(player_id=choose_id).delete_player:
+                return False
+            return True
+        _TOOLS.error_message(f"pas de joueur avec le numéro {choose_id}")
+        return False
+
 
 class DeletePlayerMenu:
     """Vue pour la suppression du joueur"""
@@ -245,20 +279,19 @@ class DeletePlayerMenu:
     @classmethod
     def show_payers_list(cls, player_id: str):
         """Gère l'éventuel identifiant du joueur passé à l'instanciation."""
-        exists_players = MainDatabase().util.if_player_id_in_database(player_id=str(player_id))
+        exists_players = MainDatabase().util.if_player_id_in_database(player_id=player_id)
         if player_id is not None and not exists_players:
             _TOOLS.error_message(f"le joueur n°{player_id} n'est pas disponible.")
         if player_id is not None and exists_players:
-            cls.choose_player = MainDatabase().util.get_player_from_id_str(player_id=str(player_id))
+            cls.choose_player = MainDatabase().util.get_player_by_id_string(player_id=str(player_id))
         else:
-            cls.choose_player = PlayerController.player_choice()
+            cls.choose_player = cls.player_choice()
 
     def confirm_player_selection_to_delete(self):
         """Demande à l'utilisateur de confirmer la suppression de l'utilisateur."""
         _TOOLS.print_warning(
-            "vous allez supprimer définitivement '{first_name} {last_name}'".format(
-                first_name=self.choose_player.first_name, last_name=self.choose_player.last_name
-            )
+            f"vous allez supprimer définitivement ' first name: {self.choose_player.first_name}"
+            f" last name: {self.choose_player.last_name}'"
         )
         confirm = _TOOLS.print_message("Confirmer la suppression ?")
         if confirm:
@@ -269,3 +302,16 @@ class DeletePlayerMenu:
     def delete_player(self):
         """Utilise le gestionnaire de base de données pour supprimer le lecteur."""
         MainDatabase().delete_player(player=self.choose_player)
+
+    @classmethod
+    def player_choice(cls):
+        if MainDatabase().util.if_player_in_database_empty():
+            return None
+
+        EditPlayerMenu().players_all_list()
+
+        choice = ""
+        while not EditPlayerMenu().player_exists(choose_id=choice):
+            choice = input("Sélectionnez un joueur")
+
+        return MainDatabase().util.get_player_by_id_string(player_id=choice)

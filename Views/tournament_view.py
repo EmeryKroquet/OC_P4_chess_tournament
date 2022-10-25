@@ -1,11 +1,11 @@
 from copy import deepcopy
 
-import typer
+from click.exceptions import Exit
 
 import tools.tools as _TOOLS
-from Controllers.player_controller import PlayerController
 from Controllers.tournament_controller import PlayMenu
 from Models.database.main_database import MainDatabase
+from Views.player_view import EditPlayerMenu
 
 
 class TournamentMenu:
@@ -37,7 +37,7 @@ class TournamentMenu:
         self.get_tournament_user_choice()
 
     def get_tournament_user_choice(self):
-        user_choice = typer.prompt("Viellez entrer un choix ")
+        user_choice = input("Viellez entrer un choix: ")
 
         if user_choice == "0":
             print("\n\n")
@@ -146,25 +146,25 @@ class NewTournamentMenu:
     def create_tournament(self):
         _TOOLS.print_title(" Viellez entrer les informations du tournoi:")
         while len(self.tournament_name) == 0:
-            self.tournament_name = input("Entrez le nom du tournois ")
+            self.tournament_name = input("Entrez le nom du tournois: ")
 
         while len(self.place) == 0:
             self.place = input("Entrez le lieu: ")
 
         while not _TOOLS.date_valid(date=self.date):
-            self.date = input("Entrez la Date au format DD-MM-YYYY")
+            self.date = input("Entrez la Date au format DD-MM-YYYY: ")
 
         while not self.numbers_of_tours.isnumeric():
-            self.numbers_of_tours = input(" Entrez le nombre de rounds ")
+            self.numbers_of_tours = input(" Entrez le nombre de rounds: ")
 
         while not self.valid_time_control():
             self.time_control = input("Veillez Entrer un contrôle de "
                                       "temps:\n"
                                       "Bullet\n"
                                       "Blitz\n"
-                                      "Coup Rapide\n")
+                                      "Coup Rapide\n : ")
         while len(self.description) == 0:
-            self.description = input("Veillez entrer une description ")
+            self.description = input("Veillez entrer une description: ")
 
     def valid_time_control(self):
         if self.time_control.lower() == "bullet":
@@ -187,10 +187,10 @@ class NewTournamentMenu:
 
     def add_players(self):
         print("\n Veillez entrer le numéro d'un joueur à ajouter\n", )
-        PlayerController.players_all_list()
+        EditPlayerMenu().players_all_list()
         while len(self.players) < 8:
             choice = input(f"Joueur ({str(len(self.players))}/8)")
-            if PlayerController.player_exists(choose_id=choice, players_ids=self.players):
+            if EditPlayerMenu().player_exists(choose_id=choice, players_ids=self.players):
                 self.players.append(int(choice))
 
     def confirm_tournament_creation(self):
@@ -200,7 +200,7 @@ class NewTournamentMenu:
         confirm = _TOOLS.print_message("\nSouhaitez vous confirmer la création de ce tournoi ?")
         if not confirm:
             _TOOLS.error_message("annulation. Le tournoi n'a pas été créé.")
-            raise typer.Exit
+            raise Exit
 
     def display_tournament(self):
         _TOOLS.print_info("paramètres du tournoi:")
@@ -320,7 +320,7 @@ class EditTournamentMenu:
         confirm = _TOOLS.print_message("\nSouhaitez vous confirmer la modification de ce tournoi ?")
         if not confirm:
             _TOOLS.error_message("annulation. Le tournoi n'a pas été modifié.")
-            raise typer.Exit
+            raise Exit
 
     def show_tournament(self):
         _TOOLS.print_info("nouvelle information du tournoi")
@@ -368,14 +368,14 @@ class EditTournamentMenu:
     def tournaments_all_list():
         """Listes de tous les tournois existants."""
         if MainDatabase().util.if_tournament_in_database_empty():
-            typer.secho("Aucun tournoi créé.")
+            print("Aucun tournoi créé.")
             return
         _TOOLS.print_info("liste des tournois existants:")
 
         all_tournaments = MainDatabase().util.get_tournaments_by_id()
         for tournament in all_tournaments:
             if tournament.is_round_ended:
-                is_round_ended = typer.style(" -> Terminé")
+                is_round_ended = _TOOLS.print_message(" -> Terminé")
             else:
                 is_round_ended = ""
             print(f"{tournament.id_number}. {tournament.name} - {tournament.date}" + is_round_ended)

@@ -1,7 +1,5 @@
 import datetime
 
-import typer
-
 import Views.player_view as _PLAYER_MENU
 import Views.main_view as _MAIN_MENU
 import Views.tournament_view as _TOURNAMENT_MENU
@@ -12,54 +10,49 @@ def print_message(message):
     return message
 
 
-def _input():
-    u_input = typer.edit()
-    return u_input
-
-
 def print_title(message: str):
     print(f"- {message.upper()} -")
     print("\n")
 
 
 def print_info(message: str):
-    typer.secho(f"- {message.capitalize()}")
-    typer.echo("\n")
+    print(f"- {message.capitalize()}")
+    print("\n")
 
 
 def print_warning(message: str):
-    typer.secho(f"{message.upper()}")
-    typer.echo("\n")
+    print(f"{message.upper()}")
+    print("\n")
 
 
 def error_message(message: str):
-    typer.secho(f"! {message.capitalize()}")
-    typer.secho("\n")
+    print(f"! {message.capitalize()}")
+    print("\n")
 
 
 def message_success(message: str):
-    typer.secho(f"> {message.capitalize()}")
-    typer.echo("\n")
+    print(f"> {message.capitalize()}")
+    print("\n")
 
 
 def alert_message(message: str):
-    typer.secho(f"{message.upper()}")
-    typer.echo("\n")
+    print(f"{message.upper()}")
+    print("\n")
 
 
 def display_current_value(field_title: str, value: any):
-    parameter = typer.style(f"\n{field_title}: ")
-    typer.echo(parameter + str(value))
+    parameter = print_message(f"\n{field_title}: ")
+    print(parameter + str(value))
 
 
 def enter_new_value(field_title: str):
-    new_value = typer.prompt(f"Entrez une nouvelle valeur pour '{field_title}'")
+    new_value = input(f"Entrez une nouvelle valeur pour '{field_title}'")
 
     return new_value
 
 
 def ask_for_edit():
-    confirm = typer.confirm("Modifier cette information?")
+    confirm = print_message("Modifiez-vous cette information?")
 
     return confirm
 

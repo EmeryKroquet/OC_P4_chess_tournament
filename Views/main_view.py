@@ -1,21 +1,19 @@
 import typer
 
-import tools.tool as _TOOLS
-from views.player_view import PlayerMenu
-from views.report_view import ReportMenu
-from views.tournament_view import TournamentMenu
+import tools.tools as _TOOLS
+from Views.player_view import PlayerMenu
+from Views.report_view import ReportMenu
+from Views.tournament_view import TournamentMenu
 
 
 class MainMenu:
 
-    def __init__(self):
-
+    def __int__(self):
         self.main_menu()
-        self.select_user_input()
+        self.get_user_choice()
 
-    @classmethod
-    def main_menu(cls):
-        _TOOLS.print_title("menu principal")
+    def main_menu(self):
+        _TOOLS.print_title(" Menu principal")
 
         user_choice = typer.style("1. ")
         typer.echo(user_choice + "Gérer les Tournois")
@@ -28,10 +26,9 @@ class MainMenu:
 
         user_choice = typer.style("\n0. ")
         typer.echo(user_choice + "Quitter")
-        cls.select_user_input()
+        self.get_user_choice()
 
-    @classmethod
-    def select_user_input(cls):
+    def get_user_choice(self):
         choice = typer.prompt("\nEntrez un choix ")
         typer.echo("\n")
 
@@ -45,4 +42,4 @@ class MainMenu:
         elif choice == "3":
             ReportMenu()
         else:
-            cls.select_user_input()
+            self.get_user_choice()

@@ -1,17 +1,17 @@
-from models.database.main_database import MainDatabase
-from models.tournament import Tournament
+from Models.database.main_database import MainDatabase
+from Models.tournament import Tournament
 
 
 class ReportController:
 
     def __init__(self):
-        """Constructor for ReportController."""
+        """Constructeur de ReportController."""
 
         self.data = []
 
     def show_all_players_by_name(self):
-        """Extract the data of all players sorted by name."""
-        players_list = MainDatabase().util.get_players_by_name()
+        """Extraire les données de tous les joueurs triés par nom. """
+        players_list = MainDatabase().util.get_players_names()
 
         for player in players_list:
             self.data.append(
@@ -26,7 +26,7 @@ class ReportController:
             )
 
     def show_all_players_by_rating(self):
-        """Extraire les données de tous les joueurs classés par ordre clssement dans la table."""
+        """Extraire les données de tous les joueurs classés par ordre de classement dans la table."""
 
         players_list = MainDatabase().util.get_players_by_rating()
 
@@ -47,7 +47,7 @@ class ReportController:
         for player in tournament.players:
             players_dict[player.id_number] = player
 
-        players_list = MainDatabase().util.get_players_by_name(players_name=players_dict)
+        players_list = MainDatabase().util.get_players_names(players_name=players_dict)
 
         for player in players_list:
             self.data.append(

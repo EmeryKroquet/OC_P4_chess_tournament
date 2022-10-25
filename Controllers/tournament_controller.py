@@ -1,20 +1,16 @@
-from controllers.player_controller import PlayerController
-from models.database.main_database import MainDatabase
-from models.match import Match
-from models.round import Round
+from time import sleep
+
+import typer
+
+from Controllers.player_controller import PlayerController
+from Models.database.main_database import MainDatabase
+from Models.match import Match
+from Models.round import Round
+
+import tools.tools as _TOOLS
 
 
 class TournamentController:
-    """Gère la génération et la progression d'un tournoi.
-
-    Attributes :
-        tournament (Tournoi) : Objet de tournoi correspondant.
-        Generator (TournamentController Objet permettant de générer le tournoi correspondant.
-        Current_round_number (int) : Numéro du round actuellement joué.
-        current_round_id (int) : Identifiant unique du tour en cours de jeu.
-        Current_match_number (int) : Numéro du match en cours.
-        Current_match_id (int) : Identifiant unique du match en cours.
-    """
 
     def __init__(self, tournament_id: int):
         """Constructeur pour PlayerController.
@@ -46,10 +42,7 @@ class TournamentController:
         self.update_tournament_in_progression()
 
     def generate_match(self):
-        """Renvoie un nouveau match jusqu'à la fin du tournoi.
-        Retourne :
-            Match : Le prochain match à jouer.
-        """
+        """Renvoie un nouveau match jusqu'à la fin du tournoi."""
         self.update_tournament_in_progression()
         current_tour = self.tournament.tours[self.current_round_id]
         if self.is_round_ended(tour=current_tour):
@@ -73,7 +66,8 @@ class TournamentController:
             round_number=len(self.tournament.tours) + 1, tournament_id=self.tournament.id_number)
         self.current_round_id = round_id
         for players in matches:
-            MainDatabase().create_match(players=players, tournament_id=self.tournament.id_number, round_id=round_id, winner=None)
+            MainDatabase().create_match(players=players, tournament_id=self.tournament.id_number, round_id=round_id,
+                                        winner=None)
 
     def update_tournament_in_progression(self):
         """Demande une mise à jour de la progression des tours et des matchs du tournoi."""
@@ -82,8 +76,7 @@ class TournamentController:
 
     def update_current_round(self):
         """Met à jour le numéro du tour actuel et l'identifiant unique en fonction
-            de l'achèvement des tours du tournoi.
-        """
+            de l'achèvement des tours du tournoi."""
         for round_id in self.tournament.tours:
             round_obj = self.tournament.tours[round_id]
             if not self.is_round_ended(tour=round_obj):
@@ -113,8 +106,7 @@ class TournamentController:
 
     def is_round_ended(self, tour: Round):
         """Vérifie si un tour est terminé en parcourant les gagnants de ses matchs.
-            Retourne bool : Le match est terminé.
-        """
+            Retourne bool : Le match est terminé."""
         matches = tour.matches
 
         for match_id in matches:
@@ -126,8 +118,7 @@ class TournamentController:
 
     def tournament_ended(self):
         """Vérifie si un tournoi est terminé en itérant à travers ses tours.
-            Retourne bool : Le tournoi est terminé.
-        """
+            Retourne bool : Le tournoi est terminé."""
         if len(self.tournament.tours) < self.tournament.numbers_of_tours:
             return False
 
@@ -161,3 +152,110 @@ class TournamentController:
         self.tournament.tours[self.current_round_id].matches[match.id_number].winner = winner
         MainDatabase().save_match(self.tournament.tours[self.current_round_id].matches[match.id_number])
 
+
+class PlayMenu:
+
+    def __init__(self, tournament_id: int):
+        self.tournament_controller = TournamentController(tournament_id=tournament_id)
+        self.play_match()
+
+        _TOOLS.go_back_to_menu(current_view=self.__class__.__name__)
+
+    def play_match(self):
+        """Utilise la méthode de génération de match du gestionnaire
+        de tournoi pour afficher un match jusqu'à la fin du tournoi. """
+        while self.tournament_controller.generate_match() is not None:
+            self.display_next_match(self.tournament_controller.generate_match())
+        self.show_final_rating()
+
+    def display_next_match(self, match: Match):
+        """Lance les affichages d'informations et les invites pertinentes pour un Match donné."""
+        self.display_tournament_in_progression()
+        self.introduce_match(match=match)
+        winner = self.ask_for_winner()
+        self.tournament_controller.save_player_winner(match=match, winner=winner)
+
+    def display_tournament_in_progression(self):
+        """Affiche les numéros du tournoi, du tour et du match en cours."""
+        self.tournament_controller.update_tournament_in_progression()
+        decorator = typer.style(
+            " - - ",
+            bold=True,
+        )
+        separator = typer.style(
+            " - ",
+            bold=True,
+        )
+        tournament_number = typer.style(
+            f"Tournoi {self.tournament_controller.tournament.id_number}")
+        round_number = typer.style(
+            f"Round {self.tournament_controller.current_round_number}")
+        match_number = typer.style(
+            f"Match {self.tournament_controller.current_match_number}")
+
+        print("\n" + decorator +
+              tournament_number +
+              separator + round_number +
+              separator + match_number +
+              decorator)
+
+    @staticmethod
+    def introduce_match(match: Match):
+        """Affiche les noms et le classement des joueurs du match en cours."""
+        player_1_title = typer.style(
+            "Joueur 1: ",
+            bold=True,
+        )
+        player_1_name = typer.style(
+            f"First Name 1: {match.player_1.first_name} "
+            f"Last Name 1: {match.player_1.last_name} "
+            )
+        player_1_rating = typer.style(
+            f"({match.player_1.rating})")
+
+        player_1_presentation = player_1_title + player_1_name + player_1_rating
+
+        versus = typer.style(
+            " vs ",
+            bold=True,
+        )
+        player_2_title = typer.style(
+            "Joueur 2: ",
+            bold=True,
+        )
+        player_2_name = typer.style(
+            "{first_name_2} {last_name_2} ".format(
+                first_name_2=match.player_2.first_name,
+                last_name_2=match.player_2.last_name,
+            ))
+        player_2_rating = typer.style(
+            f"({match.player_2.rating})")
+
+        player_2_presentation = player_2_title + player_2_name + player_2_rating
+
+        typer.echo(player_1_presentation + versus + player_2_presentation)
+
+    @staticmethod
+    def ask_for_winner():
+        winner = ""
+        while winner.lower() not in ["1", "2", "nul"]:
+            winner = typer.prompt("Entrez le gagnant (1, 2, ou nul)")
+        return winner.lower()
+
+    def show_final_rating(self):
+        """Affiche le classement final."""
+        typer.echo("\n")
+        _TOOLS.message_success("TOURNOI TERMINÉ")
+        _TOOLS.print_info("classement final:")
+        rating_table = MainDatabase().util.get_format_rating_table(
+            rating_table=self.tournament_controller.tournament.rating_table)
+        i = 1
+        for player in rating_table:
+            rating = typer.style(f"{i} -")
+            player_name = player[0]
+            points = str(player[1])
+            typer.echo(f"{rating} {player_name} ({points} points)")
+            i += 1
+
+            typer.echo("\n")
+            sleep(5)

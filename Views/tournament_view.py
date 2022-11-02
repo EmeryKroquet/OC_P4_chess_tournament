@@ -198,10 +198,10 @@ class NewTournamentMenu:
         self.display_tournament()
         self.list_of_selection_players_by_name()
 
-        confirm = _TOOLS.print_message("\nSouhaitez vous confirmer la création de ce tournoi ?")
+        confirm = "\nSouhaitez vous confirmer la création de ce tournoi ?"
         if not confirm:
             _TOOLS.error_message("annulation. Le tournoi n'a pas été créé.")
-            raise typer.Exit
+            raise SystemExit
 
     def display_tournament(self):
         _TOOLS.print_info("paramètres du tournoi:")
@@ -216,7 +216,7 @@ class NewTournamentMenu:
         print(parameter + self.numbers_of_tours)
         parameter = "Contrôle du temps: "
         print(parameter + self.time_control)
-        parameter = "\nDescription: "
+        parameter = "Description: \n"
         print(parameter + self.description)
 
     def list_of_selection_players_by_name(self):
@@ -243,7 +243,7 @@ class NewTournamentMenu:
         _TOOLS.message_success("Le tournoi à été crée!")
 
     def start_tournament(self):
-        confirm = _TOOLS.print_message("\nSouhaitez-vous commencer le tournoi ?")
+        confirm = "\nSouhaitez-vous commencer le tournoi ?"
 
         if confirm:
             PlayMenu(tournament_id=self.create_tournament_id)
@@ -321,7 +321,7 @@ class EditTournamentMenu:
         confirm = _TOOLS.print_message("\nSouhaitez vous confirmer la modification de ce tournoi ?")
         if not confirm:
             _TOOLS.error_message("annulation. Le tournoi n'a pas été modifié.")
-            raise typer.Exit
+            raise SystemExit
 
     def show_tournament(self):
         _TOOLS.print_info("nouvelle information du tournoi")

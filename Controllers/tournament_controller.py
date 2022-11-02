@@ -1,6 +1,5 @@
 from time import sleep
 
-import typer
 
 from Controllers.player_controller import PlayerController
 from Models.database.main_database import MainDatabase
@@ -178,19 +177,19 @@ class PlayMenu:
     def display_tournament_in_progression(self):
         """Affiche les numéros du tournoi, du tour et du match en cours."""
         self.tournament_controller.update_tournament_in_progression()
-        decorator = typer.style(
+        decorator = _TOOLS.print_message(
             " - - ",
-            bold=True,
+
         )
-        separator = typer.style(
+        separator = _TOOLS.print_message(
             " - ",
-            bold=True,
+
         )
-        tournament_number = typer.style(
+        tournament_number = _TOOLS.print_message(
             f"Tournoi {self.tournament_controller.tournament.id_number}")
-        round_number = typer.style(
+        round_number = _TOOLS.print_message(
             f"Round {self.tournament_controller.current_round_number}")
-        match_number = typer.style(
+        match_number = _TOOLS.print_message(
             f"Match {self.tournament_controller.current_match_number}")
 
         print("\n" + decorator +
@@ -202,60 +201,60 @@ class PlayMenu:
     @staticmethod
     def introduce_match(match: Match):
         """Affiche les noms et le classement des joueurs du match en cours."""
-        player_1_title = typer.style(
+        player_1_title = _TOOLS.print_message(
             "Joueur 1: ",
-            bold=True,
+
         )
-        player_1_name = typer.style(
+        player_1_name = _TOOLS.print_message(
             f"First Name 1: {match.player_1.first_name} "
             f"Last Name 1: {match.player_1.last_name} "
             )
-        player_1_rating = typer.style(
+        player_1_rating = _TOOLS.print_message(
             f"({match.player_1.rating})")
 
         player_1_presentation = player_1_title + player_1_name + player_1_rating
 
-        versus = typer.style(
+        versus = _TOOLS.print_message(
             " vs ",
-            bold=True,
+
         )
-        player_2_title = typer.style(
+        player_2_title = _TOOLS.print_message(
             "Joueur 2: ",
-            bold=True,
+
         )
-        player_2_name = typer.style(
+        player_2_name = _TOOLS.print_message(
             "{first_name_2} {last_name_2} ".format(
                 first_name_2=match.player_2.first_name,
                 last_name_2=match.player_2.last_name,
             ))
-        player_2_rating = typer.style(
+        player_2_rating = _TOOLS.print_message(
             f"({match.player_2.rating})")
 
         player_2_presentation = player_2_title + player_2_name + player_2_rating
 
-        typer.echo(player_1_presentation + versus + player_2_presentation)
+        print(player_1_presentation + versus + player_2_presentation)
 
     @staticmethod
     def ask_for_winner():
         winner = ""
         while winner.lower() not in ["1", "2", "nul"]:
-            winner = typer.prompt("Entrez le gagnant (1, 2, ou nul)")
+            winner = input("Entrez le gagnant (1, 2, ou nul)")
         return winner.lower()
 
     def show_final_rating(self):
         """Affiche le classement final."""
-        typer.echo("\n")
+        print("\n")
         _TOOLS.message_success("TOURNOI TERMINÉ")
         _TOOLS.print_info("classement final:")
         rating_table = MainDatabase().util.get_format_rating_table(
             rating_table=self.tournament_controller.tournament.rating_table)
         i = 1
         for player in rating_table:
-            rating = typer.style(f"{i} -")
+            rating = _TOOLS.print_message(f"{i} -")
             player_name = player[0]
             points = str(player[1])
-            typer.echo(f"{rating} {player_name} ({points} points)")
+            print(f"{rating} {player_name} ({points} points)")
             i += 1
 
-            typer.echo("\n")
+            print("\n")
             sleep(5)

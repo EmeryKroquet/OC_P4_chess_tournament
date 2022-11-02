@@ -11,7 +11,7 @@ class Database:
         self.load_database()
 
     def create_empty_database(self):
-        """Crée un fichier JSON de base de données vide si nécessaire."""
+        """Crée un fichier db de base de données vide si nécessaire."""
         with open(self.place, "w+") as f:
             f.write("{}")
 

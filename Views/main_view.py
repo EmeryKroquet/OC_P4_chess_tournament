@@ -9,22 +9,22 @@ from Views.tournament_view import TournamentMenu
 class MainMenu:
 
     def __int__(self):
-        self.main_menu()
+        self.menu_principal()
         self.get_user_choice()
 
-    def main_menu(self):
+    def menu_principal(self):
         _TOOLS.print_title(" Menu principal")
 
-        user_choice = _TOOLS.print_message("1. ")
+        user_choice = "1. "
         print(user_choice + "Gérer les Tournois")
 
-        user_choice = _TOOLS.print_message("2. ")
+        user_choice = "2. "
         print(user_choice + "Gérer les joueurs")
 
-        user_choice = _TOOLS.print_message("3. ")
+        user_choice = "3. "
         print(user_choice + "Générer des rapports")
 
-        user_choice = _TOOLS.print_message("\n0. ")
+        user_choice = "\n0. "
         print(user_choice + "Quitter")
         self.get_user_choice()
 

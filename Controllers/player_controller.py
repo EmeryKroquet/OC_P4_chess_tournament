@@ -1,4 +1,5 @@
 from Models.database.main_database import MainDatabase
+from Models.match import Match
 from Models.player import Player
 
 
@@ -47,20 +48,20 @@ class PlayerController:
         return matches
 
     @classmethod
-    def generate_next_round(cls, rating_table: dict):
+    def generate_next_round(cls, list_of_matches: list[Match], rating_table: dict):
         list_of_matches = []
 
         sort_player = cls.sort_players_by_points(rating_table=rating_table)
         while len(sort_player) != 0:
             for opponent in range(1, len(sort_player)):
-                player_1 = sort_player[0]
-                player_2 = sort_player[opponent]
+                id_player_1 = sort_player[0]
+                id_player_2 = sort_player[opponent]
 
-                player_1 = MainDatabase().util.get_player_by_id_string(player_id=player_1)
-                player_2 = MainDatabase().util.get_player_by_id_string(player_id=player_2)
+                player_1 = MainDatabase().util.get_player_by_id_string(player_id=id_player_1)
+                player_2 = MainDatabase().util.get_player_by_id_string(player_id=id_player_2)
 
-                if not cls.players_already_playing(matches=list_of_matches, id_player_1=player_1,
-                                                   id_player_2=player_2):
+                if not cls.players_already_playing(
+                        list_of_matches=list_of_matches, id_player_1=id_player_1, id_player_2=id_player_2):
 
                     list_of_matches.append((player_1, player_2))
                     del sort_player[0]

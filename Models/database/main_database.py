@@ -8,7 +8,22 @@ from Models.round import Round
 from Models.tournament import Tournament
 
 
-class MainDatabase:
+class SingletonMeta(type):
+    """Meta for singleton application. As DataHandler will be used by different modules there is
+    no need to load the database multiple time.
+    Singleton was kept simple and is currently not thread safe.
+    """
+
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            instance = super().__call__(*args, **kwargs)
+            cls._instances[cls] = instance
+        return cls._instances[cls]
+
+
+class MainDatabase(metaclass=SingletonMeta):
 
     def __init__(self):
         self.database = Database("db")

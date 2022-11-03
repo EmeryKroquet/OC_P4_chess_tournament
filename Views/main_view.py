@@ -1,5 +1,3 @@
-from click.exceptions import Exit
-
 import tools.tools as _TOOLS
 from Views.player_view import PlayerMenu
 from Views.report_view import ReportMenu
@@ -12,7 +10,8 @@ class MainMenu:
         self.menu_principal()
         self.get_user_choice()
 
-    def menu_principal(self):
+    @classmethod
+    def menu_principal(cls):
         _TOOLS.print_title(" Menu principal")
 
         user_choice = "1. "
@@ -26,20 +25,20 @@ class MainMenu:
 
         user_choice = "\n0. "
         print(user_choice + "Quitter")
-        self.get_user_choice()
+        cls.get_user_choice()
 
-    def get_user_choice(self):
+    @classmethod
+    def get_user_choice(cls):
         choice = input("\nEntrez un choix: ")
         print("\n")
 
         if choice == "0":
-            Exit()
+            raise SystemExit
         elif choice == "1":
-            TournamentMenu()
             TournamentMenu().main_menu()
         elif choice == "2":
             PlayerMenu()
         elif choice == "3":
             ReportMenu()
         else:
-            self.get_user_choice()
+            cls.get_user_choice()

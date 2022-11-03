@@ -1,6 +1,5 @@
 from time import sleep
 
-
 from Controllers.player_controller import PlayerController
 from Models.database.main_database import MainDatabase
 from Models.match import Match
@@ -57,16 +56,17 @@ class TournamentController:
         if len(self.tournament.tours) == 0:
             matches = self.generator.generate_first_round()
         else:
-            all_matches_list = MainDatabase().util.get_all_matches(tournament=self.tournament)
+            list_of_all_matches = MainDatabase().util.get_all_matches(tournament=self.tournament)
             matches = self.generator.generate_next_round(
-                matches=all_matches_list, rating_table=self.tournament.rating_table)
+                matches=list_of_all_matches, rating_table=self.tournament.rating_table)
 
         round_id = MainDatabase().create_round(
             round_number=len(self.tournament.tours) + 1, tournament_id=self.tournament.id_number)
         self.current_round_id = round_id
         for players in matches:
-            MainDatabase().create_match(players=players, tournament_id=self.tournament.id_number, round_id=round_id,
-                                        winner=None)
+            MainDatabase().create_match(
+                players=players, tournament_id=self.tournament.id_number, round_id=round_id, winner=None
+            )
 
     def update_tournament_in_progression(self):
         """Demande une mise à jour de la progression des tours et des matchs du tournoi."""
@@ -152,7 +152,7 @@ class TournamentController:
         MainDatabase().save_match(self.tournament.tours[self.current_round_id].matches[match.id_number])
 
 
-class PlayMenu:
+class PlayGameMenu:
 
     def __init__(self, tournament_id: int):
         self.tournament_controller = TournamentController(tournament_id=tournament_id)
@@ -208,7 +208,7 @@ class PlayMenu:
         player_1_name = _TOOLS.print_message(
             f"First Name 1: {match.player_1.first_name} "
             f"Last Name 1: {match.player_1.last_name} "
-            )
+        )
         player_1_rating = _TOOLS.print_message(
             f"({match.player_1.rating})")
 
@@ -223,10 +223,9 @@ class PlayMenu:
 
         )
         player_2_name = _TOOLS.print_message(
-            "{first_name_2} {last_name_2} ".format(
-                first_name_2=match.player_2.first_name,
-                last_name_2=match.player_2.last_name,
-            ))
+            f"First Name 2: {match.player_2.first_name}"
+            f"Last Name 2: {match.player_2.last_name}"
+        )
         player_2_rating = _TOOLS.print_message(
             f"({match.player_2.rating})")
 
@@ -245,7 +244,7 @@ class PlayMenu:
         """Affiche le classement final."""
         print("\n")
         _TOOLS.message_success("TOURNOI TERMINÉ")
-        _TOOLS.print_info("classement final:")
+        _TOOLS.print_info("classement final: ")
         rating_table = MainDatabase().util.get_format_rating_table(
             rating_table=self.tournament_controller.tournament.rating_table)
         i = 1

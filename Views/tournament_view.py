@@ -1,12 +1,8 @@
-import sys
 from copy import deepcopy
 
-import typer
-
 import tools.tools as _TOOLS
-from Controllers.tournament_controller import PlayMenu
+from Controllers.tournament_controller import PlayGameMenu
 from Models.database.main_database import MainDatabase
-
 
 
 class TournamentMenu:
@@ -17,7 +13,8 @@ class TournamentMenu:
         self.main_menu()
         self.get_tournament_user_choice()
 
-    def main_menu(self):
+    @classmethod
+    def main_menu(cls):
         user_choice = "1."
         print(user_choice + "Rependre un tournoi")
 
@@ -35,14 +32,15 @@ class TournamentMenu:
 
         user_choice = "\n0."
         print(user_choice + "Retour au menu")
-        self.get_tournament_user_choice()
+        cls.get_tournament_user_choice()
 
-    def get_tournament_user_choice(self):
+    @classmethod
+    def get_tournament_user_choice(cls):
         user_choice = input("Viellez entrer un choix: ")
 
         if user_choice == "0":
             print("\n\n")
-            _TOOLS.go_back_to_menu(current_view=self.__class__.__name__)
+            _TOOLS.go_back_to_menu(current_view=cls.__class__.__name__)
         elif user_choice == "1":
             print("\n\n")
             LoadTournamentMenu()
@@ -59,9 +57,9 @@ class TournamentMenu:
             print("\n\n")
             EditTournamentMenu().tournaments_all_list()
             print("\n")
-            LoadTournamentMenu().tournament_user_choice()
+            cls.get_tournament_user_choice()
         else:
-            LoadTournamentMenu().tournament_user_choice()
+            cls.get_tournament_user_choice()
 
 
 class LoadTournamentMenu:
@@ -119,7 +117,7 @@ class LoadTournamentMenu:
     @staticmethod
     def start_tournament(tournament_id):
         """Ouvre le menu de jeu pour le tournoi sélectionné."""
-        PlayMenu(tournament_id)
+        PlayGameMenu(tournament_id)
 
 
 class NewTournamentMenu:
@@ -246,7 +244,7 @@ class NewTournamentMenu:
         confirm = "\nSouhaitez-vous commencer le tournoi ?"
 
         if confirm:
-            PlayMenu(tournament_id=self.create_tournament_id)
+            PlayGameMenu(tournament_id=self.create_tournament_id)
         else:
             _TOOLS.go_back_to_menu(current_view=self.__class__.__name__)
 

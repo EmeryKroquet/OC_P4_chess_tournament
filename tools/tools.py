@@ -103,7 +103,7 @@ def gender_is_valid(gender: str):
 
 
 def go_back_to_menu(current_view: str):
-    if current_view in ["TournamentMenu", "PlayerMenu", "ReportMenu", "PlayMenu"]:
+    if current_view in ["TournamentMenu", "PlayerMenu", "ReportMenu", "PlayGameMenu"]:
         _MAIN_MENU.MainMenu()
     elif current_view in ["TournamentMenu", "LoadTournamentMenu", "EditTournamentMenu", "DeleteTournamentMenu"]:
         _TOURNAMENT_MENU.TournamentMenu()

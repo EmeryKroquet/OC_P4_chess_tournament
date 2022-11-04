@@ -19,18 +19,18 @@ class ReportMenu:
     @staticmethod
     def main_menu():
         """Affiche les différentes options du menu."""
-        choice = _TOOLS.print_message("1. ")
+        choice = "1. "
         print(choice + "Joueurs")
 
-        choice = _TOOLS.print_message("2. ")
+        choice = "2. "
         print(choice + "Tournois")
 
-        choice = _TOOLS.print_message("\n0. ")
+        choice = "\n0. "
         print(choice + "Retour")
 
     def select_user_input(self):
         """Invite l'utilisateur à sélectionner une option."""
-        user_choice = input("Entrez votre choix ")
+        user_choice = input("Entrez votre choix: ")
 
         if user_choice == "0":
             print("\n\n")
@@ -62,13 +62,13 @@ class PlayerReportMenu:
     @staticmethod
     def main_menu():
         """Affiche les différentes options du menu."""
-        choice = _TOOLS.print_message("1. ")
+        choice = "1. "
         print(choice + "Par Nom")
 
-        choice = _TOOLS.print_message("2. ")
+        choice = "2. "
         print(choice + "Par Rating")
 
-        choice = _TOOLS.print_message("\n0. ")
+        choice = "\n0. "
         print(choice + "Retour")
 
     def select_user_input(self):
@@ -109,22 +109,22 @@ class TournamentReportMenu:
 
         _TOOLS.go_back_to_menu(current_view=self.__class__.__name__)
 
-    @staticmethod
-    def mian_menu():
+    @classmethod
+    def mian_menu(cls):
         """Affiche les différentes options du menu."""
-        choice = _TOOLS.print_message("1. ")
+        choice = "1. "
         print(choice + "Tous les tournois")
 
-        choice = _TOOLS.print_message("2. ")
+        choice = "2. "
         print(choice + "Joueurs d'un tournoi")
 
-        choice = _TOOLS.print_message("3. ")
+        choice = "3. "
         print(choice + "Rounds d'un tournoi")
 
-        choice = _TOOLS.print_message("4. ")
+        choice = "4. "
         print(choice + "Matchs d'un tournoi")
 
-        choice = _TOOLS.print_message("\n0. ")
+        choice = "\n0. "
         print(choice + "Retour")
 
     def select_user_input(self):
@@ -137,13 +137,13 @@ class TournamentReportMenu:
             return
         elif user_choice == "1":
             print("\n\n")
-            ReportController().show_all_tournaments()
+            self.report_controller.show_all_tournaments()
         elif user_choice == "2":
             self.tournament_players_sub_menu()
         elif user_choice == "3":
             tournament_choice = EditTournamentMenu().tournament_choice()
             self.report_controller.tournament_rounds(tournament=tournament_choice)
-            if len(tournament_choice.rounds) == 0:
+            if len(tournament_choice.tours) == 0:
                 _TOOLS.error_message("le tournoi ne comporte aucun round.")
                 _TOOLS.go_back_to_menu(current_view=self.__class__.__name__)
                 return
@@ -151,7 +151,7 @@ class TournamentReportMenu:
         elif user_choice == "4":
             tournament_choice = EditTournamentMenu().tournament_choice()
             self.report_controller.tournament_matches(tournament=tournament_choice)
-            if len(tournament_choice.rounds) == 0:
+            if len(tournament_choice.tours) == 0:
                 _TOOLS.error_message("le tournoi ne comporte aucun match.")
                 _TOOLS.go_back_to_menu(current_view=self.__class__.__name__)
                 return
@@ -164,18 +164,18 @@ class TournamentReportMenu:
 
         tournament_choice = EditTournamentMenu().tournament_choice()
 
-        choice = _TOOLS.print_message("1. ")
+        choice = "1. "
         print(choice + "Par Nom")
-        choice = _TOOLS.print_message("2. ")
+        choice = "2. "
         print(choice + "Par Classement")
-        choice = _TOOLS.print_message("\n0. ")
+        choice = "\n0. "
         print(choice + "Retour")
         self.tournament_players_sub_menu_choice(tournament_choice=tournament_choice)
 
     def tournament_players_sub_menu_choice(self, tournament_choice: Tournament):
         """Demande de l'utilisateur pour le sous-menu de rapport des joueurs du tournoi. """
 
-        user_choice = input("Entrez votre sélection ")
+        user_choice = input("Entrez votre sélection: ")
 
         if user_choice == "0":
             print("\n\n")

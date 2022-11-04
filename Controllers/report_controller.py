@@ -11,7 +11,7 @@ class ReportController:
 
     def show_all_players_by_name(self):
         """Extraire les données de tous les joueurs triés par nom. """
-        players_list = MainDatabase().util.get_players_names()
+        players_list = MainDatabase().util.get_payer_by_name()
 
         for player in players_list:
             self.data.append(

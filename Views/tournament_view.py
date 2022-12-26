@@ -1,8 +1,11 @@
 from copy import deepcopy
 
+import typer
+
 import tools.tools as _TOOLS
-from Controllers.tournament_controller import PlayGameMenu
-from Models.database.main_database import MainDatabase
+from Controllers.main_controller import MainController
+from Views.play import PlayGameMenu
+from Controllers.main_database import MainDatabase
 
 
 class TournamentMenu:
@@ -16,22 +19,23 @@ class TournamentMenu:
     @classmethod
     def main_menu(cls):
         user_choice = "1."
-        print(user_choice + "Rependre un tournoi")
+        print(f"{user_choice}Rependre un tournoi")
 
         user_choice = "2."
-        print(user_choice + "Créer un nouveau tournoi")
+        print(f"{user_choice}Créer un nouveau tournoi")
 
         user_choice = "3."
-        print(user_choice + "Modifier un tournoi")
+        print(f"{user_choice}Modifier un tournoi")
 
         user_choice = "4."
-        print(user_choice + "Supprimer un tournoi")
+        print(f"{user_choice}Supprimer un tournoi")
 
         user_choice = "5."
-        print(user_choice + "Afficher tous les tournois")
+        print(f"{user_choice}Afficher tous les tournois")
 
         user_choice = "\n0."
-        print(user_choice + "Retour au menu")
+        print(f"{user_choice}Retour au menu")
+
         cls.get_tournament_user_choice()
 
     @classmethod
@@ -44,18 +48,23 @@ class TournamentMenu:
         elif user_choice == "1":
             print("\n\n")
             LoadTournamentMenu()
+
         elif user_choice == "2":
             print("\n\n")
             NewTournamentMenu()
+
         elif user_choice == "3":
             print("\n\n")
             EditTournamentMenu()
+
         elif user_choice == "4":
             print("\n\n")
             DeleteTournamentMenu()
+
         elif user_choice == "5":
             print("\n\n")
-            EditTournamentMenu().tournaments_all_list()
+            _TOOLS.tournaments_all_list()
+
             print("\n")
             cls.get_tournament_user_choice()
         else:
@@ -80,29 +89,29 @@ class LoadTournamentMenu:
 
     def show_tournaments(self, tournament_id: int = None):
         """Gère l'éventuel identifiant de tournoi passé à l'instanciation."""
-        tournament_valable = (
-                MainDatabase().util.get_tournament_by_id_string(tournament_id=tournament_id)
-                in self.tournaments
-        )
-        if tournament_id is not None and not tournament_valable:
-            _TOOLS.error_message(
-                f"le tournoi n°{tournament_id} n'est pas disponible.",
+        if tournament_id is not None:
+            tournament_valable = (
+                    MainDatabase().util.get_tournament_by_id_string(tournament_id=tournament_id)
+                    in self.tournaments
             )
-        elif tournament_id is not None and tournament_valable:
-            self.start_tournament(tournament_id=tournament_id)
-            _TOOLS.go_back_to_menu(current_view=self.__class__.__name__)
+            if not tournament_valable:
+                _TOOLS.error_message(
+                    f"le tournoi n°{tournament_id} n'est pas disponible.",
+                )
+            else:
+                self.start_tournament(tournament_id=tournament_id)
+                _TOOLS.go_back_to_menu(current_view=self.__class__.__name__)
 
     def display_tournaments_in_progression(self):
         """Utilise le gestionnaire de base de données pour trouver et
             afficher les tournois non terminés afin que l'utilisateur puisse
             faire son choix.
          """
+        parameter = "Nom: "
         for tournament in self.tournaments:
             print(f" - Tournoi n°{tournament.id_number} -")
-            parameter = _TOOLS.print_message("Nom: ")
             print(parameter + tournament.name)
-            parameter = _TOOLS.print_message("Date: ")
-            print(parameter + tournament.date + "\n")
+            print(f"Date: {tournament.date}" + "\n")
 
     def tournament_user_choice(self):
         """Demande à l'utilisateur de sélectionner un tournoi à charger."""
@@ -188,7 +197,7 @@ class NewTournamentMenu:
         print("\n Veillez entrer le numéro d'un joueur à ajouter\n", )
         _TOOLS.players_all_list()
         while len(self.players) < 8:
-            choice = input(f"Joueur ({str(len(self.players))}/8): ")
+            choice = input(f"Joueur ({len(self.players)}/8): ")
             if _TOOLS.player_exists(choose_id=choice, players_ids=self.players):
                 self.players.append(int(choice))
 
@@ -196,7 +205,7 @@ class NewTournamentMenu:
         self.display_tournament()
         self.list_of_selection_players_by_name()
 
-        confirm = "\nSouhaitez vous confirmer la création de ce tournoi ?"
+        confirm = typer.confirm("\nSouhaitez vous confirmer la création de ce tournoi ?")
         if not confirm:
             _TOOLS.error_message("annulation. Le tournoi n'a pas été créé.")
             raise SystemExit
@@ -221,7 +230,7 @@ class NewTournamentMenu:
         """Liste des joueurs pour sélectionner par leurs noms"""
         _TOOLS.print_info("liste des joueurs: ")
 
-        players_name = MainDatabase().util.get_players_names(players_name=self.players)
+        players_name = MainController(MainDatabase()).get_players_names(players_name=self.players)
 
         for name in players_name:
             print(f" - {name}")
@@ -241,9 +250,7 @@ class NewTournamentMenu:
         _TOOLS.message_success("Le tournoi à été crée!")
 
     def start_tournament(self):
-        confirm = "\nSouhaitez-vous commencer le tournoi ?"
-
-        if confirm:
+        if confirm := typer.confirm("\nSouhaitez-vous commencer le tournoi ?"):
             PlayGameMenu(tournament_id=self.create_tournament_id)
         else:
             _TOOLS.go_back_to_menu(current_view=self.__class__.__name__)
@@ -280,9 +287,8 @@ class EditTournamentMenu:
             _TOOLS.error_message(f"le tournoi n°{tournament_id} n'est pas disponible.")
 
         if tournament_id is not None and tournament_exists:
-            cls.tournament_choice = MainDatabase().util.get_tournament_from_id_str(
-                tournament_id=int(tournament_id)
-            )
+            cls.tournament_choice = MainDatabase().util.get_tournament_from_id_str(tournament_id=tournament_id)
+
         else:
             cls.tournament_choice = cls.tournament_choice()
 
@@ -323,14 +329,14 @@ class EditTournamentMenu:
 
     def show_tournament(self):
         _TOOLS.print_info("nouvelle information du tournoi")
-        parameter = _TOOLS.print_message("Nom: ")
-        print(str(parameter) + self.tournament_choice.name)
-        parameter = _TOOLS.print_message("Lieu: ")
-        print(str(parameter) + self.tournament_choice.place)
-        parameter = _TOOLS.print_message("Date: ")
-        print(str(parameter) + self.tournament_choice.date)
-        parameter = _TOOLS.print_message("Description: ")
-        print(str(parameter) + self.tournament_choice.description)
+        parameter = "Nom: "
+        print(parameter + self.tournament_choice.name)
+        parameter = "Lieu: "
+        print(parameter + self.tournament_choice.place)
+        parameter = "Date: "
+        print(parameter + self.tournament_choice.date)
+        parameter = "Description: "
+        print(parameter + self.tournament_choice.description)
 
     def save_tournament(self):
         """ Utiliser la classe MainDatabase pour modifier le tournoi"""
@@ -356,7 +362,7 @@ class EditTournamentMenu:
         """Prompts the user to select a tournament in database."""
         if MainDatabase().util.if_player_in_database_empty():
             return None
-        cls.tournaments_all_list()
+        _TOOLS.tournaments_all_list()
 
         choice = ""
         while not cls.tournament_exists(choose_id=choice):
@@ -364,26 +370,10 @@ class EditTournamentMenu:
         return MainDatabase().util.get_tournament_by_id_string(tournament_id=choice)
 
     @staticmethod
-    def tournaments_all_list():
-        """Listes de tous les tournois existants."""
-        if MainDatabase().util.if_tournament_in_database_empty():
-            print("Aucun tournoi créé.")
-            return
-        _TOOLS.print_info("\nliste des tournois existants: ")
-
-        all_tournaments = MainDatabase().util.get_tournaments_by_id()
-        for tournament in all_tournaments:
-            if tournament.is_round_ended:
-                is_round_ended = _TOOLS.print_message(" -> Terminé")
-            else:
-                is_round_ended = ""
-            print(f"{tournament.id_number}. {tournament.name} - {tournament.date}" + is_round_ended)
-
-    @staticmethod
     def tournament_exists(choose_id: str):
         """Verifies if the tournament selected by the user exists."""
 
-        if len(choose_id) == 0:
+        if not choose_id:
             return False
         if not choose_id.isnumeric():
             _TOOLS.error_message("entrez le numéro du tournoi devant son nom")
@@ -425,9 +415,9 @@ class DeleteTournamentMenu:
             cls.tournament_choose = EditTournamentMenu().tournament_choice()
 
     def confirm_tournament_creation(self):
-        _TOOLS.alert_message(f"Vous allez supprimer définitivement le tournoi '{self.tournament_choose.name}'")
-        confirm = _TOOLS.print_message("Confirmez-vous la suppression ?")
+        confirm = _TOOLS.alert_message(f"Vous allez supprimer définitivement le tournoi {self.tournament_choose.name}")
         if confirm:
+            _TOOLS.print_message("Confirmez-vous la suppression ?")
             self.delete_tournament()
         else:
             print("\n Le tournoi n'a pas été supprimé")

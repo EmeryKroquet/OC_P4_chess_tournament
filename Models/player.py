@@ -14,12 +14,12 @@ class Player:
         self.delete_player = delete_player
 
     def __str__(self):
-        show_info = (f" - Player ID: {self.id_number}\n"
-                     f" - First Name: {self.first_name}\n"
-                     f" - Last Name: {self.last_name}\n"
-                     f" - Date Of Birth: {self.date_of_birth}\n"
-                     f" - Gender: {self.gender}\n"
-                     f" - Rating: {str(self.rating)}\n"
-                     f" - Player Delete: {str(self.delete_player)}")
+        show_info = f" - Player ID: {self.id_number}\n"
+        show_info += f" - First Name: {self.first_name}\n"
+        show_info += f" - Last Name: {self.last_name}\n"
+        show_info += f" - Date Of Birth: {self.date_of_birth}\n"
+        show_info += f" - Gender: {self.gender}\n"
+        show_info += f" - Rating: {str(self.rating)}\n"
+        show_info += f" - Player Delete: {str(self.delete_player)}"
 
         return show_info

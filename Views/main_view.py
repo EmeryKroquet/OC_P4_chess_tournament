@@ -25,6 +25,7 @@ class MainMenu:
 
         user_choice = "\n0. "
         print(user_choice + "Quitter")
+
         cls.get_user_choice()
 
     @classmethod

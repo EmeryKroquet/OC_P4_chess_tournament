@@ -1,9 +1,9 @@
 from copy import deepcopy
 
-from click.exceptions import Exit
+import typer
 
 import tools.tools as _TOOLS
-from Models.database.main_database import MainDatabase
+from Controllers.main_database import MainDatabase
 
 
 class PlayerMenu:
@@ -33,11 +33,11 @@ class PlayerMenu:
         print(user_choice + "Afficher tous les joueurs")
 
         user_choice = "\n0. "
-        print(user_choice + "Retour")
+        print(user_choice + "Retour au menu")
 
     def player_user_choice(self):
         """Invite l'utilisateur à sélectionner une option."""
-        choice = input("\nEntrez votre choix ")
+        choice = input("\nEntrez votre choix: ")
 
         if choice == "0":
             _TOOLS.go_back_to_menu(current_view=self.__class__.__name__)
@@ -79,36 +79,40 @@ class NewPlayerMenu:
     def display_menu(self):  # creation de joueur
         while len(self.first_name) == 0:
             self.first_name = input("Prénom du joueur: ")
+
         while len(self.last_name) == 0:
             self.last_name = input("Nom de famille du joueur: ")
+
         while not _TOOLS.date_valid(date=self.date_of_birth):
-            self.date_of_birth = input("Date de naissance (DD-MM-YYYY)")
+            self.date_of_birth = input("Date de naissance (DD-MM-YYYY): ")
+
         while not _TOOLS.gender_is_valid(gender=self.gender):
-            self.gender = input("Genre (H/F)")
+            self.gender = input("Genre (H/F): ")
 
         while not self.rating.isnumeric():
-            self.rating = input("Rating")
+            self.rating = input("Rating: ")
 
     def confirm_player_creation(self):
+
         self.show_player()
 
-        confirm = _TOOLS.print_message("\nSouhaitez vous confirmer la création de ce joueur ?")
+        confirm = typer.confirm("\nSouhaitez vous confirmer la création de ce joueur ?")
         if not confirm:
             _TOOLS.error_message("annulation. Le joueur n'a pas été créé.")
-            raise Exit
+            raise SystemExit
 
     def show_player(self):
         _TOOLS.print_info("Informations du joueur:")
 
-        parameter = _TOOLS.print_message("Prénom: ")
+        parameter = "Prénom: "
         print(parameter + self.first_name)
-        parameter = _TOOLS.print_message("Nom de famille: ")
+        parameter = "Nom de famille: "
         print(parameter + self.last_name)
-        parameter = _TOOLS.print_message("Date de naissance: ")
+        parameter = "Date de naissance: "
         print(parameter + self.date_of_birth)
-        parameter = _TOOLS.print_message("Genre: ")
+        parameter = "Genre: "
         print(parameter + self.gender)
-        parameter = _TOOLS.print_message("Rating: ")
+        parameter = "Rating: "
         print(parameter + str(self.rating))
 
     def save_player(self):
@@ -129,7 +133,7 @@ class EditPlayerMenu:
         """Constructeur pour EditPlayerMenu."""
 
         _TOOLS.print_title("modification d'un joueur")
-        self.show_players_list(player_id=player_id)
+        self.show_players_list(player_id=str(player_id))
         if self.player_choice is None:
             _TOOLS.error_message("aucun joueur créé.")
             _TOOLS.go_back_to_menu(current_view=self.__class__.__name__)
@@ -165,7 +169,7 @@ class EditPlayerMenu:
 
         self.player_choice.last_name = _TOOLS.edit_prompt(
             field_title="Nom de famille", value=self.player_choice.last_name)
-        self.player_choice.date_of_birth = _TOOLS.edit_prompt(field_title="Date de naissance",
+        self.player_choice.date_of_birth = _TOOLS.edit_prompt(field_title="Date of Birth",
                                                               value=self.player_choice.date_of_birth)
         self.player_choice.gender = _TOOLS.edit_prompt(field_title="Genre",
                                                        value=self.player_choice.gender)
@@ -192,24 +196,24 @@ class EditPlayerMenu:
     def confirm_player_creation(self):
         """Invite l'utilisateur à confirmer les paramètres précédemment saisis. """
         self.show_player()
-        confirm = _TOOLS.print_message("\nSouhaitez vous confirmer la modification de ce joueur ?")
+        confirm = typer.confirm("\nSouhaitez vous confirmer la modification de ce joueur ?")
         if not confirm:
             _TOOLS.error_message("annulation. Le joueur n'a pas été modifié.")
-            raise Exit
+            raise SystemExit
 
     def show_player(self):
         """Affiche tous les paramètres du lecteur précédemment saisis."""
         _TOOLS.print_info("nouvelles informations du joueur:")
 
-        parameter = _TOOLS.print_message("Prénom: ")
+        parameter = "Prénom: "
         print(parameter + self.player_choice.first_name)
-        parameter = _TOOLS.print_message("Nom de famille: ")
+        parameter = "Nom de famille: "
         print(parameter + self.player_choice.last_name)
-        parameter = _TOOLS.print_message("Date de naissance: ")
+        parameter = "Date de naissance: "
         print(parameter + self.player_choice.date_of_birth)
-        parameter = _TOOLS.print_message("Genre: ")
+        parameter = "Genre: "
         print(parameter + self.player_choice.gender)
-        parameter = _TOOLS.print_message("Rating: ")
+        parameter = "Rating: "
         print(parameter + str(self.player_choice.rating))
 
     def save_player(self):
@@ -244,12 +248,11 @@ class DeletePlayerMenu:
     @classmethod
     def show_payers_list(cls, player_id: str):
         """Gère l'éventuel identifiant du joueur passé à l'instanciation."""
-        print("*" * 50)
 
         exists_players = MainDatabase().util.if_payer_id_in_database(player_id=player_id)
-        print("#" * 50)
         if player_id is not None and not exists_players:
             _TOOLS.error_message(f"le joueur n°{player_id} n'est pas disponible.")
+
         if player_id is not None and exists_players:
             cls.choose_player = MainDatabase().util.get_player_by_id_string(player_id=str(player_id))
         else:
@@ -258,10 +261,10 @@ class DeletePlayerMenu:
     def confirm_player_selection_to_delete(self):
         """Demande à l'utilisateur de confirmer la suppression de l'utilisateur."""
         _TOOLS.print_warning(
-            f"vous allez supprimer définitivement ' first name: {self.choose_player.first_name}"
-            f" last name: {self.choose_player.last_name}'"
+            f"vous allez supprimer définitivement first name: {self.choose_player.first_name}"
+            f"last name: {self.choose_player.last_name}"
         )
-        confirm = _TOOLS.print_message("Confirmer la suppression ?")
+        confirm = typer.confirm("Confirmer la suppression ?")
         if confirm:
             self.delete_player()
         else:
@@ -270,4 +273,3 @@ class DeletePlayerMenu:
     def delete_player(self):
         """Utilise le gestionnaire de base de données pour supprimer le lecteur."""
         MainDatabase().delete_player(player=self.choose_player)
-

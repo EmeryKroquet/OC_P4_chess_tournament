@@ -22,17 +22,17 @@ class Tournament:
         self.tours = {}
 
     def __str__(self):
-        show_info = (f" - Tournament name: {self.name}\n"
-                     f"   - Round is ended ?: {self.is_round_ended}\n"
-                     f"   - Place: {self.place}\n"
-                     f"   - Date: {self.date}\n"
-                     f"   - Numbers of tours: {self.numbers_of_tours}\n"
-                     f"   - Time Control: {self.time_control}\n"
-                     f"   - Description: {self.description}\n"
-                     f"   - Players: {self.players}\n"
-                     f"   - Rating_table: {self.rating_table}\n"
+        show_info = f" - Tournament name: {self.name}\n"
+        show_info += f"   - Round is ended ?: {self.is_round_ended}\n"
+        show_info += f"   - Place: {self.place}\n"
+        show_info += f"   - Date: {self.date}\n"
+        show_info += f"   - Numbers of tours: {self.numbers_of_tours}\n"
+        show_info += f"   - Time Control: {self.time_control}\n"
+        show_info += f"   - Description: {self.description}\n"
+        show_info += f"   - Players: {self.players}\n"
+        show_info += f"   - Rating_table: {self.rating_table}\n"
 
-                     f" - - Started rounds - -\n")
+        show_info += f" - - Started rounds - -\n"
 
         for started_round in self.tours:
             show_info += started_round.__str__()

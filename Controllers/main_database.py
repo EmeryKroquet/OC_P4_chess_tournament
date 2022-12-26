@@ -1,33 +1,23 @@
-from tinydb import Query, table
+import json
 
-from Models.database.database import Database
-from Controllers.main_controller import MainController
+from tinydb import Query, table, TinyDB
+
 from Models.match import Match
 from Models.player import Player
 from Models.round import Round
 from Models.tournament import Tournament
 
 
-class SingletonMeta(type):
-    """Meta for singleton application. As DataHandler will be used by different modules there is
-    no need to load the database multiple time.
-    Singleton was kept simple and is currently not thread safe.
-    """
-
-    _instances = {}
-
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            instance = super().__call__(*args, **kwargs)
-            cls._instances[cls] = instance
-        return cls._instances[cls]
-
-
-class MainDatabase(metaclass=SingletonMeta):
+class MainDatabase:
 
     def __init__(self):
-        self.database = Database("db")
-        self.util = MainController(database=self.database)
+        # self.database = Database("db")
+        # self.util = MainController(database=self.database)
+
+        self.db = TinyDB("db.json", indent=2)
+
+        self.players = {}
+        self.tournaments = {}
 
         self.match_table = None
         self.round_table = None
@@ -37,10 +27,10 @@ class MainDatabase(metaclass=SingletonMeta):
         self.load_database()
 
     def load_database(self):
-        self.player_table = self.database.db.table("Players")
-        self.tournament_table = self.database.db.table("tournaments")
-        self.round_table = self.database.db.table("Rounds")
-        self.match_table = self.database.db.table("Matches")
+        self.player_table = self.db.table("players")
+        self.tournament_table = self.db.table("tournaments")
+        self.round_table = self.db.table("rounds")
+        self.match_table = self.db.table("matches")
 
         self.load_players()
         self.load_tournaments()
@@ -48,15 +38,17 @@ class MainDatabase(metaclass=SingletonMeta):
     def load_players(self):
         for player in self.player_table:
             self.create_player(
-                first_name=player["First Name"],
-                last_name=player["Last Name"],
-                date_of_birth=player["Date of Birth"],
-                gender=player["Gender"],
-                rating=player["Rating"],
+                first_name=player["first name"],
+                last_name=player["last name"],
+                date_of_birth=player["date of birth"],
+                gender=player["gender"],
+                rating=player["rating"],
                 id_number=player["id"],
-                delete_player=player["Deleted Player"],
+                delete_player=player["deleted player"],
                 save_db=True,
             )
+
+
 
     def create_player(
             self,
@@ -71,27 +63,27 @@ class MainDatabase(metaclass=SingletonMeta):
     ):
         if id_number == 0:
             id_number = self.found_next_id(self.player_table)
-        player = Player(gender.upper(), first_name.capitalize(), last_name.capitalize(), rating,
+        player = Player(gender.upper(), first_name, last_name, rating,
                         date_of_birth, id_number, delete_player, )
         self.save_player(player=player, save_db=save_db)
         return id_number
 
     def save_player(self, player: Player, save_db: bool = False):
         """Sauvegarder un objet Player dans TinyDB."""
-        self.database.players[player.id_number] = player
+        self.players[player.id_number] = player
 
         if save_db:
             return
         query = Query()
         self.player_table.upsert(
             {
-                "First Name": player.first_name,
-                "Last Name": player.last_name,
-                "Date of Birth": player.date_of_birth,
-                "Gender": player.gender,
-                "Rating": int(player.rating),
+                "first name": player.first_name,
+                "last name": player.last_name,
+                "date of birth": player.date_of_birth,
+                "gender": player.gender,
+                "rating": int(player.rating),
                 "id": int(player.id_number),
-                "Deleted Player": player.delete_player,
+                "deleted player": player.delete_player,
             },
             query.id == int(player.id_number),
         )
@@ -104,18 +96,25 @@ class MainDatabase(metaclass=SingletonMeta):
         """Utilise la table TinyDB “Tournois" pour créer des objets Joueur."""
         for tournament in self.tournament_table:
             self.create_tournament(
-                name=tournament["Name"],
-                place=tournament["Place"],
-                date=tournament["Date"],
-                numbers_of_tours=tournament["Number of Tours"],
-                time_control=tournament["Time Control"],
-                description=tournament["Description"],
+                name=tournament["name"],
+                place=tournament["place"],
+                date=tournament["date"],
+                numbers_of_tours=tournament["number of tours"],
+                time_control=tournament["time control"],
+                description=tournament["description"],
                 id_number=tournament["id"],
-                is_round_ended=tournament["Round ended"],
-                players=tournament["Players"],
-                rating_table=tournament["Rating table"],
+                is_round_ended=tournament["round ended"],
+                players=tournament["players"],
+                rating_table=tournament["rating table"],
                 save_db=True
             )
+
+    def get_tournaments_info(self):
+        self.db = TinyDB("db.json")
+        print(self.db)
+        with open("db.json", "r") as file:
+            data = json.load(file)
+            print(data)
 
     def create_tournament(
             self,
@@ -136,13 +135,10 @@ class MainDatabase(metaclass=SingletonMeta):
             id_number = self.found_next_id(self.tournament_table)
 
             # Créer la liste requise d'objets Player à partir des identifiants des joueurs.
-        player_list = []
-
-        for player in players:
-            player_list.append(self.database.players[player])
+        player_list = [self.players[player] for player in players]
 
         # Créer une table de classement vide si elle n'existe pas encore.
-        if len(rating_table) == 0:
+        if not rating_table:
             for player in players:
                 rating_table[str(player)] = 0
 
@@ -166,22 +162,19 @@ class MainDatabase(metaclass=SingletonMeta):
         if save_db:
             return
         query = Query()
-        players_id = []
-
-        for player in tournament.players:
-            players_id.append(player.id_number)
+        players_id = [player.id_number for player in tournament.players]
 
         self.tournament_table.upsert(
             {
-                "Name": tournament.name,
-                "Place": tournament.place,
-                "Date": tournament.date,
-                "Number of Tours": int(tournament.numbers_of_tours),
-                "Time Control": tournament.time_control,
-                "Description": tournament.description,
-                "Players": players_id,
-                "Rating table": tournament.rating_table,
-                "Round ended": tournament.is_round_ended,
+                "name": tournament.name,
+                "place": tournament.place,
+                "date": tournament.date,
+                "number of tours": int(tournament.numbers_of_tours),
+                "time control": tournament.time_control,
+                "description": tournament.description,
+                "players": players_id,
+                "rating table": tournament.rating_table,
+                "round ended": tournament.is_round_ended,
                 "id": int(tournament.id_number),
             },
             query.id == int(tournament.id_number)
@@ -196,15 +189,15 @@ class MainDatabase(metaclass=SingletonMeta):
 
         query = Query()
         self.tournament_table.remove(query.id == int(tournament.id_number))
-        del self.database.tournaments[int(tournament.id_number)]
+        del self.tournaments[int(tournament.id_number)]
 
     def load_rounds(self, tournament_id: int = None):
         for tour in self.round_table:
-            if tour["Tournament id"] != tournament_id:
+            if tour["tournament id"] != tournament_id:
                 continue
             self.create_round(
-                round_number=tour["Round number"],
-                tournament_id=tour["Tournament id"],
+                round_number=tour["round number"],
+                tournament_id=tour["tournament id"],
                 id_number=tour["id"],
                 save_db=True
             )
@@ -220,14 +213,14 @@ class MainDatabase(metaclass=SingletonMeta):
             return id_number
 
     def save_round(self, tour: Round, save_db: bool = False):
-        self.database.tournaments[tour.tournament_id].tours[tour.id_number] = tour
+        self.tournaments[tour.tournament_id].tours[tour.id_number] = tour
         if save_db:
             return
         query = Query()
         self.round_table.upsert(
             {
-                "Round number": tour.round_number,
-                "Tournament id": int(tour.tournament_id),
+                "round number": tour.round_number,
+                "tournament id": int(tour.tournament_id),
                 "id": int(tour.id_number),
             },
             query.id == int(tour.id_number)
@@ -241,17 +234,17 @@ class MainDatabase(metaclass=SingletonMeta):
 
     def load_matches(self, tournament_id: int):
         for match in self.match_table:
-            if match["Tournament ID"] != tournament_id:
+            if match["tournament ID"] != tournament_id:
                 continue
-            player_1 = self.database.players[match["Player 1"]]
-            player_2 = self.database.players[match["Player 2"]]
+            player_1 = self.players[match["player 1"]]
+            player_2 = self.players[match["player 2"]]
             players = (player_1, player_2)
 
             self.create_match(
                 players=players,
-                tournament_id=match["Tournament ID"],
-                round_id=match["Round ID"],
-                winner=match["Winner"],
+                tournament_id=match["tournament ID"],
+                round_id=match["round ID"],
+                winner=match["winner"],
                 id_number=match["id"],
                 save_db=True
             )
@@ -275,17 +268,17 @@ class MainDatabase(metaclass=SingletonMeta):
             self.save_match(match=match, save_db=save_db)
 
     def save_match(self, match: Match, save_db: bool = False):
-        self.database.tournaments[match.tournament_id].tours[match.round_id].matches[match.id_number] = match
+        self.tournaments[match.tournament_id].tours[match.round_id].matches[match.id_number] = match
         if save_db:
             return
         query = Query()
         self.match_table.upsert(
             {
-                "Player 1": match.player_1.id_number,
-                "Player 2": match.player_2.id_number,
-                "Winner": match.player_winner,
-                "Tournament ID": int(match.tournament_id),
-                "Round ID": int(match.round_id),
+                "player 1": match.player_1.id_number,
+                "player 2": match.player_2.id_number,
+                "winner": match.player_winner,
+                "tournament ID": int(match.tournament_id),
+                "round ID": int(match.round_id),
                 "id": int(match.id_number),
             },
             query.id == int(match.id_number)
@@ -295,15 +288,14 @@ class MainDatabase(metaclass=SingletonMeta):
         query = Query()
         self.match_table.remove(query.id == int(match.id_number))
 
-    def update_rating(self, tournament_id: int, player_id: int, winner_point: float):
-        tournament = self.database.tournaments[tournament_id]
+    def update_table_rating(self, tournament_id: int, player_id: int, winner_point: float):
+        tournament = self.tournaments[tournament_id]
         tournament.rating_table[str(player_id)] += winner_point
         self.save_tournament(tournament=tournament)
 
     def found_tournament_in_progression(self):
         query = Query()
-        result = self.tournament_table.search(query["Est Terminé"] is False)
-        return result
+        return self.tournament_table.search(query["Est Terminé"] is False)
 
     @staticmethod
     def found_next_id(table_: table.Table):

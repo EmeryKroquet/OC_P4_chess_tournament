@@ -1,11 +1,14 @@
-from Models.database.main_database import MainDatabase
-from Models.match import Match
+from Controllers.main_database import MainDatabase
 from Models.player import Player
 
 
 class PlayerController:
 
     def __init__(self, players: dict[Player]):
+        """Constructor de PlyerController
+        agr:
+        players:(dict[Player]): dictionnaire des joueurs participants
+        """
         self.players = players
 
     @staticmethod
@@ -25,31 +28,26 @@ class PlayerController:
 
     @staticmethod
     def players_already_playing(matches: list[tuple[Player]], id_player_1: str, id_player_2: str):
-        """Recherche dans une liste de matchs un match déjà existant entre les deux joueurs donnés."""
+        """Recherche dans une liste de matchs un match déjà existant entre les deux joueurs donnés.
+            Retourne:
+            bool: joueurs deja jouer
+        """
+
         player_1_vs_player_2 = (int(id_player_1), int(id_player_2))
         player_2_vs_player_1 = (int(id_player_2), int(id_player_1))
-
-        if player_1_vs_player_2 in matches:
-            return True
-        elif player_2_vs_player_1 in matches:
-            return True
-        else:
-            return False
+        return player_1_vs_player_2 in matches or player_2_vs_player_1 in matches
 
     def generate_first_round(self):
         """Génère le premier tour selon le système suisse.
             Retourne la liste[Match] : Liste des correspondances générées
         """
-        matches = []
         sorted_players = self.sort_players_by_rating()
 
-        for i in range(0, int(len(self.players) / 2)):
-            matches.append((sorted_players[i], sorted_players[i + int(len(self.players) / 2)]))
-        return matches
+        return [(sorted_players[i], sorted_players[i + len(self.players) // 2]) for i in range(len(self.players) // 2)]
 
     @classmethod
-    def generate_next_round(cls, list_of_matches: list[Match], rating_table: dict):
-        list_of_matches = []
+    def generate_next_round(cls, rating_table: dict):
+        matches = []
 
         sort_player = cls.sort_players_by_points(rating_table=rating_table)
         while len(sort_player) != 0:
@@ -60,11 +58,10 @@ class PlayerController:
                 player_1 = MainDatabase().util.get_player_by_id_string(player_id=id_player_1)
                 player_2 = MainDatabase().util.get_player_by_id_string(player_id=id_player_2)
 
-                if not cls.players_already_playing(
-                        list_of_matches=list_of_matches, id_player_1=id_player_1, id_player_2=id_player_2):
+                if not cls.players_already_playing(matches=matches, id_player_1=id_player_1, id_player_2=id_player_2):
 
-                    list_of_matches.append((player_1, player_2))
+                    matches.append((player_1, player_2))
                     del sort_player[0]
                     del sort_player[opponent - 1]
                     break
-        return list_of_matches
+        return matches

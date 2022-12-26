@@ -1,6 +1,6 @@
 import tools.tools as _TOOLS
 from Controllers.report_controller import ReportController
-from Models.database.main_database import MainDatabase
+from Controllers.main_database import MainDatabase
 from Models.tournament import Tournament
 from Views.tournament_view import EditTournamentMenu
 
@@ -86,7 +86,7 @@ class PlayerReportMenu:
             ReportController().show_all_players_by_rating()
         else:
             self.select_user_input()
-            return
+            # return
 
 
 class TournamentReportMenu:
@@ -100,7 +100,7 @@ class TournamentReportMenu:
         if MainDatabase().util.if_tournament_in_database_empty():
             _TOOLS.error_message("aucun joueur créé.")
             _TOOLS.go_back_to_menu(current_view=self.__class__.__name__)
-            return
+            # return
 
         self.report_controller = ReportController()
 
@@ -146,7 +146,7 @@ class TournamentReportMenu:
             if len(tournament_choice.tours) == 0:
                 _TOOLS.error_message("le tournoi ne comporte aucun round.")
                 _TOOLS.go_back_to_menu(current_view=self.__class__.__name__)
-                return
+                # return
 
         elif user_choice == "4":
             tournament_choice = EditTournamentMenu().tournament_choice()
@@ -187,4 +187,4 @@ class TournamentReportMenu:
             self.report_controller.show_tournament_players_by_rating(tournament=tournament_choice)
         else:
             self.select_user_input()
-            return
+            # return

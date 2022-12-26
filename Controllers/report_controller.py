@@ -1,4 +1,4 @@
-from Models.database.main_database import MainDatabase
+from Controllers.main_database import MainDatabase
 from Models.tournament import Tournament
 
 
@@ -101,10 +101,10 @@ class ReportController:
                     "id": tournament.id_number,
                     "Nom": tournament.name,
                     "Lieu": tournament.place,
-                    "Date": tournament.date,
+                    "date": tournament.date,
                     "Nombre de rounds": tournament.numbers_of_tours,
                     "Contrôle de temps": tournament.time_control,
-                    "Description": tournament.description,
+                    "description": tournament.description,
                     "Progression": is_round_ended,
                     "Joueurs": list_of_players_name,
                     "Classement": MainDatabase().util.get_format_rating_table(

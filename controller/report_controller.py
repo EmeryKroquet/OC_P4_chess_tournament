@@ -4,7 +4,6 @@ from models.tournament import Tournament
 
 class ReportController:
     """Gère la génération des données du rapport et l'enregistrement local.
-    Attributs :
         data (liste) : Liste des données sérialisées pour le rapport.
     """
     def __init__(self):
@@ -45,7 +44,6 @@ class ReportController:
 
     def tournament_players_by_name(self, tournament: Tournament):
         """Extrait les données de tous les joueurs d'un tournoi classés par nom.
-        Arguments :
             tournament (Tournoi) : Tournoi à prendre en compte.
         """
         players_dict = {player.id_number: player for player in tournament.players}
@@ -65,7 +63,6 @@ class ReportController:
 
     def tournament_players_by_rating(self, tournament: Tournament):
         """Extrait les données de tous les joueurs d'un tournoi classés par classement.
-        Args :
             tournament (Tournoi) : Tournoi à prendre en compte.
         """
         players_dict = {player.id_number: player for player in tournament.players}
@@ -161,7 +158,6 @@ class ReportController:
 
     def load_tournament_data(self, tournament_id: int):
         """Utilise le gestionnaire de base de données pour charger les tournées et les matchs d'un tournoi.
-        Arguments :
             tournament_id (int) : Identifiant unique du tournoi à charger.
         """
         MainDatabase().load_rounds(tournament_id=tournament_id)

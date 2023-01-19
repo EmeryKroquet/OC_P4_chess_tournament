@@ -66,7 +66,7 @@ class TournamentController:
             matches = self.generator.generate_first_round()
         else:
             MainDatabase().util.get_all_matches(tournament=self.tournament)
-            matches = self.generator.generate_other_round(
+            matches = self.generator.generate_next_round(
                 rating_table=self.tournament.rating_table)
         round_id = MainDatabase().create_round(
             number_of_round=len(self.tournament.tours) + 1, tournament_id=self.tournament.id_number)

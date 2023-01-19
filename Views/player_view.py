@@ -1,67 +1,80 @@
-from copy import deepcopy
-
 import typer
 
-import tools.tools as _TOOLS
-from Controllers.main_database import MainDatabase
+from copy import deepcopy
+
+from controller.main_database import MainDatabase
+import views.tools as _TOOLS
 
 
 class PlayerMenu:
-    """Vue pour les opérations liées au joueur."""
+    """View for player related operations."""
 
     def __init__(self):
-        """Constructeur pour Player Menu."""
+        """Constructor for PlayerMenu."""
 
         _TOOLS.print_title("menu des joueurs")
 
-        self.main_menu()
-        self.player_user_choice()
+        self.print_menu()
+        self.user_selection()
 
     @staticmethod
-    def main_menu():
-        """Affiche les différentes options du menu."""
-        user_choice = "1. "
-        print(user_choice + "Créer un nouveau joueur")
+    def print_menu():
+        """Displays the different menu options."""
 
-        user_choice = "2. "
-        print(user_choice + "Modifier un joueur")
+        number = typer.style("1. ", bold=True)
+        typer.echo(number + "Créer un nouveau joueur")
 
-        user_choice = "3. "
-        print(user_choice + "Supprimer un joueur")
+        number = typer.style("2. ", bold=True)
+        typer.echo(number + "Modifier un joueur")
 
-        user_choice = "4. "
-        print(user_choice + "Afficher tous les joueurs")
+        number = typer.style("3. ", bold=True)
+        typer.echo(number + "Supprimer un joueur")
 
-        user_choice = "\n0. "
-        print(user_choice + "Retour au menu")
+        number = typer.style("4. ", bold=True)
+        typer.echo(number + "Afficher tous les joueurs")
 
-    def player_user_choice(self):
-        """Invite l'utilisateur à sélectionner une option."""
-        choice = input("\nEntrez votre choix: ")
+        number = typer.style("\n0. ", bold=True)
+        typer.echo(number + "Retour")
 
-        if choice == "0":
+    def user_selection(self):
+        """Prompts the user to select an option."""
+
+        selection = typer.prompt("\nEntrez votre sélection: ")
+
+        if selection == "0":
             _TOOLS.go_back_to_menu(current_view=self.__class__.__name__)
-        elif choice == "1":
-            print("\n\n")
+        elif selection == "1":
+            typer.echo("\n\n")
             NewPlayerMenu()
-        elif choice == "2":
-            print("\n\n")
+        elif selection == "2":
+            typer.echo("\n\n")
             EditPlayerMenu()
-        elif choice == "3":
-            print("\n\n")
+        elif selection == "3":
+            typer.echo("\n\n")
             DeletePlayerMenu()
-        elif choice == "4":
-            print("\n\n")
+        elif selection == "4":
+            typer.echo("\n\n")
             _TOOLS.players_all_list()
-            print("\n")
-            self.player_user_choice()
+            typer.echo("\n")
+            self.user_selection()
         else:
-            self.player_user_choice()
+            self.user_selection()
 
 
 class NewPlayerMenu:
+    """View for new player creation.
+
+    Attributes:
+        first_name (str): Players's first name.
+        last_name (str): Player's last name.
+        date_of_birth (str): Player's date of birth.
+        gender (str): Player's gender.
+        rating (str): Player's ELO ranking.
+    """
+
     def __init__(self):
-        """Constructeur pour le New Player Menu."""
+        """Constructor for NewPlayerMenu."""
+
         _TOOLS.print_title("création d'un joueur")
 
         self.first_name = ""
@@ -70,206 +83,273 @@ class NewPlayerMenu:
         self.gender = ""
         self.rating = ""
 
-        self.display_menu()
-        self.confirm_player_creation()
+        self.settings_prompt()
+        self.confirm_settings()
         self.save_player()
 
         _TOOLS.go_back_to_menu(current_view=self.__class__.__name__)
 
-    def display_menu(self):  # creation de joueur
+    def settings_prompt(self):
+        """Prompts the user to input the different player settings."""
+
+        _TOOLS.print_info("entrez les informations du joueur")
+
         while len(self.first_name) == 0:
-            self.first_name = input("Prénom du joueur: ")
+            self.first_name = typer.prompt("Prénom du joueur")
 
         while len(self.last_name) == 0:
-            self.last_name = input("Nom de famille du joueur: ")
+            self.last_name = typer.prompt("Nom de famille du joueur")
 
-        while not _TOOLS.date_valid(date=self.date_of_birth):
-            self.date_of_birth = input("Date de naissance (DD-MM-YYYY): ")
+        while not _TOOLS.date_is_valid(date=self.date_of_birth):
+            self.date_of_birth = typer.prompt("Date de naissance (JJ/MM/AAAA)")
 
         while not _TOOLS.gender_is_valid(gender=self.gender):
-            self.gender = input("Genre (H/F): ")
+            self.gender = typer.prompt("Genre (H/F)")
 
         while not self.rating.isnumeric():
-            self.rating = input("Rating: ")
+            self.rating = typer.prompt("Rating")
 
-    def confirm_player_creation(self):
+    def confirm_settings(self):
+        """Prompts the user to confirm the settings previously entered.
 
-        self.show_player()
+        Raises:
+            typer.Exit: Exits if the user cancels the creation.
+        """
+
+        self.list_settings()
 
         confirm = typer.confirm("\nSouhaitez vous confirmer la création de ce joueur ?")
         if not confirm:
-            _TOOLS.error_message("annulation. Le joueur n'a pas été créé.")
-            raise SystemExit
+            _TOOLS.print_error("annulation. Le joueur n'a pas été créé.")
+            raise typer.Exit
 
-    def show_player(self):
-        _TOOLS.print_info("Informations du joueur:")
+    def list_settings(self):
+        """Displays all previously entered player settings."""
 
-        parameter = "Prénom: "
-        print(parameter + self.first_name)
-        parameter = "Nom de famille: "
-        print(parameter + self.last_name)
-        parameter = "Date de naissance: "
-        print(parameter + self.date_of_birth)
-        parameter = "Genre: "
-        print(parameter + self.gender)
-        parameter = "Rating: "
-        print(parameter + str(self.rating))
+        _TOOLS.print_info("informations du joueur:")
+
+        parameter = typer.style("Prénom: ", bold=True)
+        typer.echo(parameter + self.first_name)
+        parameter = typer.style("Nom de famille: ", bold=True)
+        typer.echo(parameter + self.last_name)
+        parameter = typer.style("Date de naissance: ", bold=True)
+        typer.echo(parameter + self.date_of_birth)
+        parameter = typer.style("Genre: ", bold=True)
+        typer.echo(parameter + self.gender)
+        parameter = typer.style("Rating: ", bold=True)
+        typer.echo(parameter + str(self.rating))
 
     def save_player(self):
-        """Utilise le gestionnaire de données pour sauvegarder le joueur créé."""
-        player_id = MainDatabase().create_player(
+        """Uses database handler to save created player."""
+
+        created_player_id = MainDatabase().create_player(
             first_name=self.first_name,
             last_name=self.last_name,
             date_of_birth=self.date_of_birth,
             gender=self.gender,
-            rating=int(self.rating)
+            rating=int(self.rating),
         )
-        _TOOLS.message_success(f"le joueur a été créé avec le numéro {player_id}.")
+
+        _TOOLS.print_success(f"le joueur a été créé avec le numéro {created_player_id}.")
 
 
 class EditPlayerMenu:
+    """View for player editing.
+
+    Attributes:
+        selected_player (Player): Player selected by user for edit.
+        original_player_copy (Player): Deep copy of initial Player state for modification check.
+    """
 
     def __init__(self, player_id: int = None):
-        """Constructeur pour EditPlayerMenu."""
+        """Constructor for EditPlayerMenu.
+
+        Args:
+            player_id (int, optional): Optional player id to be loaded. Defaults to None.
+        """
 
         _TOOLS.print_title("modification d'un joueur")
-        self.show_players_list(player_id=str(player_id))
-        if self.player_choice is None:
-            _TOOLS.error_message("aucun joueur créé.")
+
+        self.cli_argument_handler(player_id=str(player_id))
+
+        if self.selected_player is None:
+            _TOOLS.print_error("aucun joueur créé.")
             _TOOLS.go_back_to_menu(current_view=self.__class__.__name__)
             return
-        self.original_player_copy = deepcopy(self.player_choice)
-        self.select_player_to_edite()
+
+        self.original_player_copy = deepcopy(self.selected_player)
+
+        self.select_edit()
+
         if self.is_player_edited():
-            self.confirm_player_creation()
+            self.confirm_settings()
             self.save_player()
         else:
-            _TOOLS.message_success("aucune modification effectuée.")
+            _TOOLS.print_success("aucune modification effectuée.")
 
         _TOOLS.go_back_to_menu(current_view=self.__class__.__name__)
 
     @classmethod
-    def show_players_list(cls, player_id: str):
-        """Gère l'éventuel identifiant du joueur passé à l'instanciation. """
-        exists_player = MainDatabase().util.if_payer_id_in_database(player_id=player_id)
+    def cli_argument_handler(cls, player_id: str):
+        """Handles eventual player id passed at instantiation.
 
-        if player_id is not None and not exists_player:
-            _TOOLS.error_message(f"le joueur n°{player_id} n'est pas disponible.")
+        Args:
+            player_id (str): Optional player id to be loaded.
+        """
 
-        if player_id is not None and exists_player:
-            cls.player_choice = MainDatabase().util.get_player_by_id_string(player_id=str(player_id))
+        player_exists = MainDatabase().util.is_player_id_in_database(player_id=player_id)
+
+        if player_id is not None and not player_exists:
+            _TOOLS.print_error(f"le joueur n°{player_id} n'est pas disponible.")
+
+        if player_id is not None and player_exists:
+            cls.selected_player = MainDatabase().util.get_player_object_from_id_str(player_id=str(player_id))
         else:
-            cls.player_choice = _TOOLS.player_choice()
+            cls.selected_player = _TOOLS.player_choice()
 
-    def select_player_to_edite(self):
-        """Enumèrer tous les paramètres du joueur et demande de les modifier."""
+    def select_edit(self):
+        """Enumerates all player's settings and asks for edit."""
+
         _TOOLS.print_info("informations actuelles du joueur:")
-        self.player_choice.first_name = _TOOLS.edit_prompt(
-            field_title="Prénom", value=self.player_choice.first_name)
 
-        self.player_choice.last_name = _TOOLS.edit_prompt(
-            field_title="Nom de famille", value=self.player_choice.last_name)
-        self.player_choice.date_of_birth = _TOOLS.edit_prompt(field_title="Date of Birth",
-                                                              value=self.player_choice.date_of_birth)
-        self.player_choice.gender = _TOOLS.edit_prompt(field_title="Genre",
-                                                       value=self.player_choice.gender)
-        self.player_choice.rating = _TOOLS.edit_prompt(field_title="Rating",
-                                                       value=str(self.player_choice.rating))
+        self.selected_player.first_name = _TOOLS.edit_prompt(
+            field_title="Prénom", value=self.selected_player.first_name
+        )
+        self.selected_player.last_name = _TOOLS.edit_prompt(
+            field_title="Nom de famille", value=self.selected_player.last_name
+        )
+        self.selected_player.date_of_birth = _TOOLS.edit_prompt(field_title="Date de naissance", value=self.selected_player.date_of_birth)
+        self.selected_player.gender = _TOOLS.edit_prompt(field_title="Genre", value=self.selected_player.gender)
+        self.selected_player.rating = _TOOLS.edit_prompt(field_title="Rating", value=str(self.selected_player.rating))
 
     def is_player_edited(self):
-        """Compare l'objet du joueur sélectionné et la copie originale
-            du joueur pour voir la différence.
+        """Compares selected player object and original player copy for difference.
+
+        Returns:
+            bool: The Player attributes were modified.
         """
-        if self.player_choice.first_name != self.original_player_copy.first_name:
+
+        if self.selected_player.first_name != self.original_player_copy.first_name:
             return True
-        elif self.player_choice.last_name != self.original_player_copy.last_name:
+        elif self.selected_player.last_name != self.original_player_copy.last_name:
             return True
-        elif self.player_choice.date_of_birth != self.original_player_copy.date_of_birth:
+        elif self.selected_player.date_of_birth != self.original_player_copy.date_of_birth:
             return True
-        elif self.player_choice.gender != self.original_player_copy.gender:
+        elif self.selected_player.gender != self.original_player_copy.gender:
             return True
-        elif int(self.player_choice.rating) != self.original_player_copy.rating:
+        elif int(self.selected_player.rating) != self.original_player_copy.rating:
             return True
         else:
             return False
 
-    def confirm_player_creation(self):
-        """Invite l'utilisateur à confirmer les paramètres précédemment saisis. """
-        self.show_player()
+    def confirm_settings(self):
+        """Prompts the user to confirm the settings previously entered.
+
+        Raises:
+            typer.Exit: Exits if the user cancels the creation.
+        """
+
+        self.list_settings()
+
         confirm = typer.confirm("\nSouhaitez vous confirmer la modification de ce joueur ?")
         if not confirm:
-            _TOOLS.error_message("annulation. Le joueur n'a pas été modifié.")
-            raise SystemExit
+            _TOOLS.print_error("annulation. Le joueur n'a pas été modifié.")
+            raise typer.Exit
 
-    def show_player(self):
-        """Affiche tous les paramètres du lecteur précédemment saisis."""
+    def list_settings(self):
+        """Displays all previously entered player settings."""
+
         _TOOLS.print_info("nouvelles informations du joueur:")
 
-        parameter = "Prénom: "
-        print(parameter + self.player_choice.first_name)
-        parameter = "Nom de famille: "
-        print(parameter + self.player_choice.last_name)
-        parameter = "Date de naissance: "
-        print(parameter + self.player_choice.date_of_birth)
-        parameter = "Genre: "
-        print(parameter + self.player_choice.gender)
-        parameter = "Rating: "
-        print(parameter + str(self.player_choice.rating))
+        parameter = typer.style("Prénom: ", bold=True)
+        typer.echo(parameter + self.selected_player.first_name)
+        parameter = typer.style("Nom de famille: ", bold=True)
+        typer.echo(parameter + self.selected_player.last_name)
+        parameter = typer.style("Date de naissance: ", bold=True)
+        typer.echo(parameter + self.selected_player.date_of_birth)
+        parameter = typer.style("Genre: ", bold=True)
+        typer.echo(parameter + self.selected_player.gender)
+        parameter = typer.style("Rating: ", bold=True)
+        typer.echo(parameter + str(self.selected_player.rating))
 
     def save_player(self):
-        """Utilise le gestionnaire de base de données pour sauvegarder le lecteur édité."""
+        """Uses database handler to save edited player."""
+
         MainDatabase().create_player(
-            first_name=self.player_choice.first_name,
-            last_name=self.player_choice.last_name,
-            date_of_birth=self.player_choice.date_of_birth,
-            gender=self.player_choice.gender,
-            rating=self.player_choice.rating,
-            id_number=self.player_choice.id_number,
+            first_name=self.selected_player.first_name,
+            last_name=self.selected_player.last_name,
+            date_of_birth=self.selected_player.date_of_birth,
+            gender=self.selected_player.gender,
+            rating=self.selected_player.rating,
+            id_num=self.selected_player.id_number,
         )
-        _TOOLS.message_success(f"le joueur n°{str(self.player_choice.id_number)} a été modifié.")
+
+        _TOOLS.print_success(f"le joueur n°{str(self.selected_player.id_number)} a été modifié.")
 
 
 class DeletePlayerMenu:
-    """Vue pour la suppression du joueur"""
+    """View for player deletion
+
+    Attributes:
+        selected_player (Player): Player selected by user for deletion.
+    """
 
     def __init__(self, player_id: int = None):
-        """Constructeur pour DeletePlayerMenu."""
+        """Constructor for DeletePlayerMenu.
+
+        Args:
+            player_id (int, optional): Optional player id to be loaded. Defaults to None.
+        """
+
         _TOOLS.print_title("suppression d'un joueur")
-        self.show_payers_list(player_id=str(player_id))
-        if self.choose_player is None:
-            _TOOLS.error_message("aucun joueur créé.")
+
+        self.cli_argument_handler(player_id=str(player_id))
+
+        if self.selected_player is None:
+            _TOOLS.print_error("aucun joueur créé.")
             _TOOLS.go_back_to_menu(current_view=self.__class__.__name__)
             return
 
-        self.confirm_player_selection_to_delete()
+        self.confirm_selection()
 
         _TOOLS.go_back_to_menu(current_view=self.__class__.__name__)
 
     @classmethod
-    def show_payers_list(cls, player_id: str):
-        """Gère l'éventuel identifiant du joueur passé à l'instanciation."""
+    def cli_argument_handler(cls, player_id: str):
+        """Handles eventual player id passed at instantiation.
 
-        exists_players = MainDatabase().util.if_payer_id_in_database(player_id=player_id)
-        if player_id is not None and not exists_players:
-            _TOOLS.error_message(f"le joueur n°{player_id} n'est pas disponible.")
+        Args:
+            player_id (str): Optional player id to be loaded.
+        """
 
-        if player_id is not None and exists_players:
-            cls.choose_player = MainDatabase().util.get_player_by_id_string(player_id=str(player_id))
+        player_exists = MainDatabase().util.is_player_id_in_database(player_id=str(player_id))
+
+        if player_id is not None and not player_exists:
+            _TOOLS.print_error(f"le joueur n°{player_id} n'est pas disponible.")
+
+        if player_id is not None and player_exists:
+            cls.selected_player = MainDatabase().util.get_player_object_from_id_str(player_id=str(player_id))
         else:
-            cls.choose_player = _TOOLS.player_choice()
+            cls.selected_player = _TOOLS.player_choice()
 
-    def confirm_player_selection_to_delete(self):
-        """Demande à l'utilisateur de confirmer la suppression de l'utilisateur."""
+    def confirm_selection(self):
+        """Prompts the user to confirm user deletion."""
+
         _TOOLS.print_warning(
-            f"vous allez supprimer définitivement first name: {self.choose_player.first_name}"
-            f"last name: {self.choose_player.last_name}"
+            "vous allez supprimer définitivement '{first_name} {last_name}'".format(
+                first_name=self.selected_player.first_name, last_name=self.selected_player.last_name
+            )
+
         )
+
         confirm = typer.confirm("Confirmer la suppression ?")
+
         if confirm:
             self.delete_player()
         else:
-            _TOOLS.message_success("l'utilisateur n'a pas été supprimé.")
+            _TOOLS.print_success("l'utilisateur n'a pas été supprimé.")
 
     def delete_player(self):
-        """Utilise le gestionnaire de base de données pour supprimer le lecteur."""
-        MainDatabase().delete_player(player=self.choose_player)
+        """Uses database handler to delete player."""
+
+        MainDatabase().delete_player(player=self.selected_player)

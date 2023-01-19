@@ -1,25 +1,33 @@
-from tinydb import TinyDB
+def rearrange_boxes(current_arm_position, box_count_per_stack):
+    target_box_count = sum(box_count_per_stack) // len(box_count_per_stack)
+    # Initialize variable to keep track of the current arm position and the number of commands executed
+    arm_position = current_arm_position
+    commands = []
+    for i in range(len(box_count_per_stack)):
+        # Move the arm to the left or right as necessary
+        if arm_position < i:
+            commands.append("RIGHT")
+            arm_position += 1
+        elif arm_position > i:
+            commands.append("LEFT")
+            arm_position -= 1
+        # pick up and place boxes as necessary to reach the target box count
+        while box_count_per_stack[i] < target_box_count:
+            commands.append("PICK")
+            box_count_per_stack[i] += 1
+            commands.append("PLACE")
+            box_count_per_stack[i] -= 1
+            # Distribute any remaining boxes to the stacks on the left
+    for i in range(len(box_count_per_stack)):
+        while box_count_per_stack[i] < target_box_count:
+            if arm_position > 0:
+                commands.append("LEFT")
+                arm_position -= 1
+                commands.append("PICK")
+                box_count_per_stack += 1
+                commands.append("RIGHT")
+                arm_position += 1
+    return commands
 
 
-class MainDatabase:
-
-    def __init__(self):
-        # self.database = TinyDB("db.json")
-        # self.util = MainController(database=self.database)
-        self.db = TinyDB("data/db.json", indent=2)
-
-        self.match_table = None
-        self.round_table = None
-        self.tournament_table = None
-        self.player_table = None
-
-        self.load_database()
-
-    def load_database(self):
-        self.player_table = self.db.table("players")
-        self.tournament_table = self.db.table("tournaments")
-        self.round_table = self.db.table("rounds")
-        self.match_table = self.db.table("matches")
-
-        # self.load_players()
-        # self.load_tournaments()
+print(rearrange_boxes())

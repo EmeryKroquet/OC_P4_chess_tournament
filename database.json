@@ -1,0 +1,228 @@
+{
+    "players": {
+        "1": {
+            "first name": "Emery",
+            "last name": "Kroquet",
+            "date of birth": "H",
+            "gender": "24-02-1994",
+            "rating": 10,
+            "id": 1,
+            "deleted player": false
+        },
+        "2": {
+            "first name": "Jean ",
+            "last name": "Dupont",
+            "date of birth": "H",
+            "gender": "02-01-1990",
+            "rating": 2,
+            "id": 2,
+            "deleted player": false
+        },
+        "3": {
+            "first name": "Loraine",
+            "last name": "Clark",
+            "date of birth": "F",
+            "gender": "20-04-1899",
+            "rating": 3,
+            "id": 3,
+            "deleted player": false
+        },
+        "4": {
+            "first name": "Celine",
+            "last name": "Dion",
+            "date of birth": "F",
+            "gender": "09-04-1947",
+            "rating": 4,
+            "id": 4,
+            "deleted player": false
+        },
+        "5": {
+            "first name": "Christ",
+            "last name": "Mbassou",
+            "date of birth": "H",
+            "gender": "03-04-1890",
+            "rating": 5,
+            "id": 5,
+            "deleted player": false
+        },
+        "6": {
+            "first name": "Khadija",
+            "last name": "Ouchou",
+            "date of birth": "F",
+            "gender": "20-09-1980",
+            "rating": 7,
+            "id": 6,
+            "deleted player": false
+        },
+        "7": {
+            "first name": "Amine",
+            "last name": "Dad",
+            "date of birth": "H",
+            "gender": "30-09-1980",
+            "rating": 9,
+            "id": 7,
+            "deleted player": false
+        },
+        "8": {
+            "first name": "Josee",
+            "last name": "Fernandez",
+            "date of birth": "F",
+            "gender": "30-11-1990",
+            "rating": 9,
+            "id": 8,
+            "deleted player": false
+        }
+    },
+    "tournaments": {
+        "1": {
+            "name": "grand tour d'afrique",
+            "Place": "bangui",
+            "date": "30-05-2000",
+            "number of tours": 4,
+            "time control": "Bullet",
+            "description": "coucher du soleil",
+            "players_table": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8
+            ],
+            "rating table": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0,
+                "5": 0,
+                "6": 0,
+                "7": 0,
+                "8": 0
+            },
+            "round ended": false,
+            "id": 1
+        },
+        "2": {
+            "name": "grand tour d'afrique",
+            "Place": "bangui",
+            "date": "30-03-1900",
+            "number of tours": 4,
+            "time control": "Bullet",
+            "description": "coucher du soleil",
+            "players_table": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8
+            ],
+            "rating table": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0,
+                "5": 0,
+                "6": 0,
+                "7": 0,
+                "8": 0
+            },
+            "round ended": false,
+            "id": 2
+        },
+        "3": {
+            "name": "gemo",
+            "Place": "boali",
+            "date": "30-03-1000",
+            "number of tours": 4,
+            "time control": "Bullet",
+            "description": "humunider",
+            "players_table": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8
+            ],
+            "rating table": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0,
+                "5": 0,
+                "6": 0,
+                "7": 0,
+                "8": 0
+            },
+            "round ended": false,
+            "id": 3
+        },
+        "4": {
+            "name": "africa tour",
+            "Place": "bimbo",
+            "date": "03-03-2003",
+            "number of tours": 4,
+            "time control": "Blitz",
+            "description": "dans les boux",
+            "players_table": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8
+            ],
+            "rating table": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0,
+                "5": 0,
+                "6": 0,
+                "7": 0,
+                "8": 0
+            },
+            "round ended": false,
+            "id": 4
+        },
+        "5": {
+            "name": "humsh",
+            "Place": "djwe",
+            "date": "30-03-2000",
+            "number of tours": 4,
+            "time control": "Blitz",
+            "description": "fee",
+            "players_table": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8
+            ],
+            "rating table": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0,
+                "5": 0,
+                "6": 0,
+                "7": 0,
+                "8": 0
+            },
+            "round ended": false,
+            "id": 5
+        }
+    }
+}

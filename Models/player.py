@@ -15,7 +15,7 @@ class Player:
             Last_name (str) : Le nom de famille du joueur.
             Date_of_birth (str) : Date de naissance du joueur.
             Gender (str) : Sexe du joueur.
-            rating (int) : Classement ELO du joueur.
+            rating (int) : Classement du joueur.
             Id_number (int) : Numéro d'identification unique du joueur.
             Delete_player (bool) : Le joueur est-il supprimé ?
         """
@@ -29,6 +29,17 @@ class Player:
         self.delete_player = delete_player
 
     def __str__(self):
+        show_info = " - Player ID: {id}\n".format(id=self.id_number) +\
+                    "   - First Name: {first_name}\n".format(first_name=self.first_name)
+        show_info += "   - Last Name: {last_name}\n".format(last_name=self.last_name)
+        show_info += "   - Date of birth: {dob}\n".format(dob=self.date_of_birth)
+        show_info += "   - Gender: {gender}\n".format(gender=self.gender)
+        show_info += "   - Rating: {rating}\n".format(rating=str(self.rating))
+        show_info += "   - Is deleted: {deleted}\n".format(deleted=str(self.delete_player))
+
+        return show_info
+
+    def __repr__(self):
         show_info = " - Player ID: {id}\n".format(id=self.id_number) +\
                     "   - First Name: {first_name}\n".format(first_name=self.first_name)
         show_info += "   - Last Name: {last_name}\n".format(last_name=self.last_name)

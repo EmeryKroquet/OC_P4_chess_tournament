@@ -57,13 +57,12 @@ class PlayerController:
         sorted_players = self.sort_player_by_rating()
         return [(sorted_players[i], sorted_players[i + len(self.players) // 2]) for i in range(len(self.players) // 2)]
 
-    @classmethod
-    def generate_next_round(cls, rating_table: dict):
+    def generate_next_round(self, matches: list[Match], rating_table: dict):
         """Génère un tour, autre que le premier, selon le système suisse.
             list [Match] : Liste des matchs générés.
         """
         matches = []
-        sorted_players = cls.sort_player_by_points(rating_table=rating_table)
+        sorted_players = self.sort_player_by_points(rating_table=rating_table)
 
         while len(sorted_players) != 0:
             for opponent in range(1, len(sorted_players)):
@@ -73,7 +72,7 @@ class PlayerController:
                 player_1 = MainDatabase().util.get_player_object_from_id_str(player_id=id_player_1)
                 player_2 = MainDatabase().util.get_player_object_from_id_str(player_id=id_player_2)
 
-                if not cls.players_already_involved(matches=matches, id_1=id_player_1, id_2=id_player_2):
+                if not self.players_already_involved(matches=matches, id_1=id_player_1, id_2=id_player_2):
                     matches.append((player_1, player_2))
                     del sorted_players[0]
                     del sorted_players[opponent - 1]

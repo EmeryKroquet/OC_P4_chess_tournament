@@ -5,6 +5,9 @@ Chess tournament est une application pour le jeu d’echecs qui permet de gérer
 Ce projet est développé en suivant l’architecture MVC et POO (Programmation Orientés Objets) en langage python. 
 En développant cette application nous avons suis installer des differents packages pour le développement et le fonction de l’application en premier : 
 La version de python utiliser est [Python 3.9](https://www.python.org/downloads/release/python-390)
+```sh 
+Merci de noté que ce programme marche unique sur le système Macos !
+```
 ### Pour l’installer ? 
 Il faut en premier créer un environnement virtuel à l’aide [pyenv virtualenvironment](https://pypi.org/project/virtualenv-pyenv/):
 Voilà la commande à suivre : 

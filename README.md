@@ -101,11 +101,11 @@ La première chose que vous devriez faire ;
 entre 1 vous affiche le menu du tournament qui se présente comme suit : 
 
 ```
-1.Rependre un tournoi
-2.Créer un nouveau tournoi
-3.Modifier un tournoi
-4.Supprimer un tournoi
-5.Afficher tous les tournois
+1. Rependre un tournoi
+2. Créer un nouveau tournoi
+3. Modifier un tournoi
+4. Supprimer un tournoi
+5. Afficher tous les tournois
 
 0.Retour au menu
 ```
@@ -118,18 +118,21 @@ Si vous entrez 2 dans le menu principal il vous affiche le menu des joueurs et i
 
 0. Retour au menu
 ```
-Ensuite si vous entrez 3 il vous affiche le menu des rapports et il se présente comme suit :
+Ensuite si vous entrez 3 il vous affiche le menu des rapports et il se présente comme suit :
 ```
-1 Rapport des Joueurs
-2 Rapport des Tournois
-0 Retour 
+1. Rapport des Joueurs
+2. Rapport des Tournois
+0. Retour 
 ```
-En entrant 1 dans le menu des rapports il vous affiches le 
+En entrant 1 dans le menu des rapports il vous affiche le 
 ```
-1 Rapport par Nom 
-2 Rapports par Classement
-0 Retour
+1. Rapport par Nom 
+2. Rapports par Classement
+0. Retour
 ```
-## Comment jouer le jeu ? 
 
-## Comment générer des rapports avec flak8-html ?
+## Comment générer des rapports avec flake8-html ?
+Entrez la commande ci-dessous afin de générer un rapport
+```
+flake8 --output-file=report.html main.py
+```

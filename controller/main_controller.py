@@ -1,4 +1,4 @@
-from models.database import Database
+from models.Database.database import Database
 from models.tournament import Tournament
 
 

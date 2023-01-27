@@ -1,6 +1,6 @@
 from tinydb import Query, table
 
-from models.database import Database
+from models.Database.database import Database
 from models.player import Player
 from models.tournament import Tournament
 from models.round import Round
